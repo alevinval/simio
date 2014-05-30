@@ -8,3 +8,5 @@
 #Intellij
 *.iml
 .idea/*
+
+**/.package/*
