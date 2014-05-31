@@ -8,7 +8,6 @@ typedef struct {
 	unsigned char name[256];
 	int size;
 	int block_size;
-	int fd;
 	Block * blocks;
 } Receipt;
 
