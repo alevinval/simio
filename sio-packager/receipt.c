@@ -182,6 +182,7 @@ void receipt_create (   Receipt *receipt,
         receipt->last_block->next = block;
         block->prev = receipt->last_block;
         receipt->last_block = block;
+        free(block->data);
     }
 
     // Set the receipt hash
