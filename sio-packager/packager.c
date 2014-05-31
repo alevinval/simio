@@ -14,10 +14,10 @@ int package_create ()
 void package_initialize () 
 {
     printf ("Initialising empty .package/\n");
-    chdir (DIR_PACKAGE);    
+    chdir (DIR_PACKAGE);
     mkdir (DIR_BLOCKS, DIR_PERM);
     mkdir (DIR_RECEIPTS, DIR_PERM);
-    mkdir (DIR_SYNC, DIR_PERM);    
+    mkdir (DIR_SYNC, DIR_PERM);
 }
 
 void package_prepare ()

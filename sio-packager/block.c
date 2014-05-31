@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fcntl.h>
 #include <unistd.h>
 
 #include "util.h"
 #include "sha256.h"
 #include "block.h"
-#include "dir.h"
 #include "dirnav.h"
 
 int

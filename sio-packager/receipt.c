@@ -2,14 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 
 #include "sha256.h"
 #include "receipt.h"
 #include "dirnav.h"
 #include "dir.h"
 #include "util.h"
-#include "block.h"
 
 void recover_original_file (Receipt *receipt)
 {
@@ -18,7 +16,7 @@ void recover_original_file (Receipt *receipt)
     unsigned char *block_buffer;
     Block *block;
 
-    open_create_file (receipt->name);
+    fd = open_create_file (receipt->name);
 
     if (fd == -1)
         die ("recover_original_file: cannot create the original file");
@@ -56,7 +54,8 @@ void recover_original_file_i (Receipt *receipt)
         die ("recover_original_file_i: cannot create the original file");
 
     block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
-    
+
+    i = 0;
     for ( block = receipt->blocks->head;
           block != NULL;
           block = block->next )

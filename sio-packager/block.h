@@ -38,5 +38,4 @@ check_block_integrity ( Block *block,
 						unsigned char *buffer, 
 						int len );
 
-
 #endif /** BLOCK_H */

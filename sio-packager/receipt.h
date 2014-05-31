@@ -16,11 +16,4 @@ void receipt_unpack (Receipt *receipt, int skip_integrity_flag);
 void receipt_store (Receipt *receipt);
 void receipt_fetch (Receipt *receipt);
 
-void write_receipt_header (int fd, Receipt *receipt);
-void write_receipt_blocks (int fd, Receipt *receipt);
-void read_receipt_header (int fd, Receipt *receipt);
-void read_receipt_blocks (int fd, Receipt *receipt);
-
-void set_receipt_hash (Receipt *receipt);
-
 #endif /** RECEIPT_H */
