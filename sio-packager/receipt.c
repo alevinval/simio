@@ -11,7 +11,7 @@
 
 void recover_original_file (Receipt *receipt)
 {
-    int i, fd, block_size;
+    int fd, block_size;
     unsigned char block_name[SHA256_STRING];
     unsigned char *block_buffer;
     Block *block;
@@ -23,12 +23,11 @@ void recover_original_file (Receipt *receipt)
 
     block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
 
-    for ( block = receipt->blocks->head;
-          block != NULL;
-          block = block->next )
-    {
+    for (block = receipt->blocks->head;
+         block != NULL;
+         block = block->next) {
         sha2hexf (block_name, block->hash);
-        block_size = block2buffer (block_name, block_buffer);
+        block_size = block_read (block_name, block_buffer);
         write (fd, block_buffer, block_size);
     }
 
@@ -47,7 +46,7 @@ void recover_original_file_i (Receipt *receipt)
     strcpy ((char *) tmp_name, "");
     strcat ((char *) tmp_name, (char *) receipt->name);
     strcat ((char *) tmp_name, ".tmp");
-    
+
     fd = open_create_file (tmp_name);
 
     if (fd == -1)
@@ -56,30 +55,25 @@ void recover_original_file_i (Receipt *receipt)
     block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
 
     i = 0;
-    for ( block = receipt->blocks->head;
-          block != NULL;
-          block = block->next )
-    {
+    for (block = receipt->blocks->head;
+         block != NULL;
+         block = block->next) {
         i++;
         sha2hexf (block_name, block->hash);
-        block_size = block2buffer (block_name, block_buffer);
-        if (check_block_integrity(block, block_buffer, block_size) == 1)
-        {
+        block_size = block_read (block_name, block_buffer);
+        if (check_block_integrity (block, block_buffer, block_size) == 1) {
             write (fd, block_buffer, block_size);
         } else {
             error ("integrity failure in Block %i\n [ %s ]", i, block_name);
             integrity_error = 1;
-            mv_parent ();
-            unlink ((char *) tmp_name);
-            mv_package_root ();
+            remove_file (tmp_name);
             break;
         }
     }
 
     close (fd);
 
-    if (integrity_error != 1)
-    {
+    if (integrity_error != 1) {
         mv_parent ();
         unlink ((char *) receipt->name);
         rename ((char *) tmp_name, (char *) receipt->name);
@@ -91,8 +85,8 @@ void recover_original_file_i (Receipt *receipt)
 }
 
 /**
-    Concatenate the hashes of each `file block` calculate
-    their hash.
+Concatenate the hashes of each `file block` calculate
+their hash.
 */
 void set_receipt_hash (Receipt *receipt)
 {
@@ -102,10 +96,9 @@ void set_receipt_hash (Receipt *receipt)
     Block *block;
 
     i = 0;
-    for ( block = receipt->blocks->head;
-          block != NULL; 
-          block = block->next )
-    {
+    for (block = receipt->blocks->head;
+         block != NULL;
+         block = block->next) {
         memcpy (&hash_buffer[i * 32], block->hash, 32);
         i++;
     }
@@ -114,15 +107,11 @@ void set_receipt_hash (Receipt *receipt)
     free (hash_buffer);
 }
 
-/**
-    Create a receipt structure and flush the blocks on the .package
-    dir.
-*/
-void receipt_create ( Receipt *receipt,
-                      unsigned char *file_path,
-                      unsigned int block_size )
+void receipt_create (Receipt *receipt,
+                     unsigned char *file_path,
+                     unsigned int block_size)
 {
-    int i, fd, len;
+    int i, fd;
     unsigned char *buffer = malloc (sizeof (unsigned char) * block_size);
     Block *block;
 
@@ -133,13 +122,11 @@ void receipt_create ( Receipt *receipt,
     receipt->block_size = block_size;
     receipt->blocks = block_list_new ();
 
-    for (i = 0; i < receipt->size; i++)
-    {
-        block = malloc(sizeof(Block));   
-        len = fill_buffer (fd, buffer, block_size);
-        buffer2block (block, buffer, len);
+    for (i = 0; i < receipt->size; i++) {
+        block = block_create (fd, block_size, buffer);
         block_list_add (receipt->blocks, block);
     }
+
     set_receipt_hash (receipt);
     close (fd);
     free (buffer);
@@ -153,21 +140,20 @@ void write_receipt_header (int fd, Receipt *receipt)
     write (fd, &receipt->block_size, sizeof (int));
 }
 
-void write_receipt_blocks ( int fd, 
-                            Receipt *receipt )
+void write_receipt_blocks (int fd,
+                           Receipt *receipt)
 {
     Block *block;
 
-    for ( block = receipt->blocks->head; 
-          block != NULL; 
-          block = block->next ) 
-    {
+    for (block = receipt->blocks->head;
+         block != NULL;
+         block = block->next) {
         write (fd, block->hash, 32);
     }
 }
 
-void read_receipt_header ( int fd, 
-                           Receipt *receipt )
+void read_receipt_header (int fd,
+                          Receipt *receipt)
 {
     read (fd, receipt->hash, 32);
     read (fd, receipt->name, FNAME_LEN);
@@ -176,8 +162,8 @@ void read_receipt_header ( int fd,
     receipt->blocks = malloc (sizeof (BlockList));
 }
 
-void read_receipt_blocks ( int fd, 
-                           Receipt *receipt)
+void read_receipt_blocks (int fd,
+                          Receipt *receipt)
 {
     int i;
     Block *block;
@@ -190,8 +176,8 @@ void read_receipt_blocks ( int fd,
     }
 }
 
-void receipt_unpack ( Receipt *receipt,
-                      int skip_integrity_flag )
+void receipt_unpack (Receipt *receipt,
+                     int skip_integrity_flag)
 {
     if (skip_integrity_flag)
         recover_original_file (receipt);
@@ -199,7 +185,7 @@ void receipt_unpack ( Receipt *receipt,
         recover_original_file_i (receipt);
 }
 
-void receipt_store ( Receipt *receipt )
+void receipt_store (Receipt *receipt)
 {
     int fd;
 
@@ -209,7 +195,7 @@ void receipt_store ( Receipt *receipt )
     close (fd);
 }
 
-void receipt_fetch ( Receipt *receipt )
+void receipt_fetch (Receipt *receipt)
 {
     int fd;
 

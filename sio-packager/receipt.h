@@ -11,9 +11,18 @@ typedef struct {
 	BlockList *blocks;
 } Receipt;
 
-void receipt_create (Receipt *receipt, unsigned char *path, unsigned int blk_size);
-void receipt_unpack (Receipt *receipt, int skip_integrity_flag);
-void receipt_store (Receipt *receipt);
-void receipt_fetch (Receipt *receipt);
+void
+receipt_create (Receipt *receipt,
+                unsigned char *path,
+                unsigned int blk_size);
+
+void
+receipt_unpack (Receipt *receipt,
+                int skip_integrity_flag);
+void
+receipt_store (Receipt *receipt);
+
+void
+receipt_fetch (Receipt *receipt);
 
 #endif /** RECEIPT_H */

@@ -4,13 +4,32 @@
 #include "dirnav.h"
 #include "dir.h"
 
-void mv_package_root () { chdir (DIR_PACKAGE); }
-void mv_package_blocks () { chdir (DIR_BLOCKS); }
-void mv_package_receipts () { chdir (DIR_RECEIPTS); }
-void mv_parent () { chdir (".."); }
+void
+mv_package_root ()
+{
+    chdir (DIR_PACKAGE);
+}
+
+void
+mv_package_blocks ()
+{
+    chdir (DIR_BLOCKS);
+}
+
+void
+mv_package_receipts ()
+{
+    chdir (DIR_RECEIPTS);
+}
+
+void
+mv_parent ()
+{
+    chdir ("..");
+}
 
 int
-open_block ( unsigned char *block_name )
+open_block (unsigned char *block_name)
 {
     int fd;
 
@@ -25,7 +44,7 @@ open_block ( unsigned char *block_name )
 }
 
 int
-open_create_block ( unsigned char *block_name )
+open_create_block (unsigned char *block_name)
 {
     int fd;
 
@@ -40,7 +59,7 @@ open_create_block ( unsigned char *block_name )
 }
 
 int
-open_receipt ( unsigned char *receipt_name )
+open_receipt (unsigned char *receipt_name)
 {
     int fd;
 
@@ -55,7 +74,7 @@ open_receipt ( unsigned char *receipt_name )
 }
 
 int
-open_create_receipt ( unsigned char *receipt_name )
+open_create_receipt (unsigned char *receipt_name)
 {
     int fd;
 
@@ -70,7 +89,7 @@ open_create_receipt ( unsigned char *receipt_name )
 }
 
 int
-open_file ( unsigned char *file_name )
+open_file (unsigned char *file_name)
 {
     int fd;
 
@@ -85,7 +104,7 @@ open_file ( unsigned char *file_name )
 }
 
 int
-open_create_file ( unsigned char *file_name )
+open_create_file (unsigned char *file_name)
 {
     int fd;
 
@@ -94,7 +113,15 @@ open_create_file ( unsigned char *file_name )
     mv_package_root ();
 
     if (fd == -1)
-        die ("open_file: cannot open requested file");
+        die ("open_create_file: cannot open or create the requested file");
 
     return fd;
+}
+
+void
+remove_file (unsigned char *file_name)
+{
+    mv_parent ();
+    unlink ((char *) file_name);
+    mv_package_root ();
 }

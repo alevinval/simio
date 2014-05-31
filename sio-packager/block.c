@@ -8,51 +8,35 @@
 #include "dirnav.h"
 
 int
-check_block_integrity ( Block *block, 
-                        unsigned char *buffer, 
-                        int len )
+check_block_integrity (Block *block,
+                       unsigned char *buffer,
+                       int len )
 {
     int i;
     unsigned char match_sha[32];
-
-    sha256(match_sha, buffer, len);
+    
+    sha256 (match_sha, buffer, len);
     for (i = 0; i < 32; i++)
         if (match_sha[i] != block->hash[i])
             return -1;
-
+    
     return 1;
 }
 
-void 
-write_block ( Block *block,
-              unsigned char *data )
-{
-    int fd;
-    unsigned char block_name[SHA256_STRING];
-
-    sha2hexf (block_name, block->hash);
-    fd = open_create_block (block_name);
-    write (fd, data, block->size);
-    close (fd);
-}
-
 void
-buffer2block ( Block *block,
-               unsigned char *buffer,
-               int len )
+buffer_to_block (Block *block,
+                 unsigned char *buffer )
 {
-    block->size = len;
     sha256 (block->hash, buffer, block->size);
-    write_block (block, buffer);
 }
 
 int
-block2buffer ( unsigned char *block_name,
-               unsigned char *buffer )
+block_read (unsigned char *block_name,
+            unsigned char *buffer )
 {
     int fd;
     long block_size;
-
+    
     fd = open_block (block_name);
     block_size = file_size (fd);
     read (fd, buffer, block_size);
@@ -61,18 +45,44 @@ block2buffer ( unsigned char *block_name,
     return block_size;
 }
 
+void
+block_store (Block *block,
+             unsigned char *data )
+{
+    int fd;
+    unsigned char block_name[SHA256_STRING];
+    
+    sha2hexf (block_name, block->hash);
+    fd = open_create_block (block_name);
+    write (fd, data, block->size);
+    close (fd);
+}
+
+Block *
+block_create (int fd,
+              int block_size,
+              unsigned char *buffer )
+{
+    Block *block = malloc (sizeof (Block));
+    block->size = block_size;
+    fill_buffer (fd, buffer, block_size);
+    buffer_to_block (block, buffer);
+    block_store (block, buffer);
+    return block;
+}
+
 BlockList *
 block_list_new ()
 {
     BlockList *list;
-    list = malloc (sizeof(BlockList));
+    list = malloc (sizeof (BlockList));
     list->size = 0;
     return list;
 }
 
-void 
-block_list_add ( BlockList *list, 
-                 Block *block )
+void
+block_list_add (BlockList *list,
+                Block *block )
 {
     if ( list->size == 0 ) {
         list->head = block;

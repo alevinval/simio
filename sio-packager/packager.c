@@ -31,7 +31,6 @@ void package_prepare ()
 void pack ( char * file_path, 
             unsigned int block_size )
 {
-    int fd;
     Receipt receipt;
 
     package_prepare ();
