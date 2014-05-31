@@ -8,6 +8,7 @@
 #include "dirnav.h"
 #include "dir.h"
 #include "util.h"
+#include "block.h"
 
 void dump_receipt (Receipt *receipt)
 {
