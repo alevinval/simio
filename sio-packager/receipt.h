@@ -8,21 +8,21 @@ typedef struct {
 	unsigned char name[256];
 	int size;
 	int block_size;
+	int fd;
 	Block * blocks;
 } Receipt;
 
-void dump_receipt (Receipt *receipt);
-
-void set_receipt_hash (Receipt *receipt);
-
-void create_receipt (Receipt *receipt, unsigned char *path, unsigned int blk_size);
+void receipt_create (Receipt *receipt, unsigned char *path, unsigned int blk_size);
+void receipt_unpack (Receipt *receipt, int skip_integrity_flag);
+void receipt_store (Receipt *receipt);
+void receipt_fetch (Receipt *receipt);
 
 void write_receipt_header (int fd, Receipt *receipt);
 void write_receipt_blocks (int fd, Receipt *receipt);
 void read_receipt_header (int fd, Receipt *receipt);
 void read_receipt_blocks (int fd, Receipt *receipt);
 
-void recover_receipt (int fd, Receipt *receipt, int skip_integrity_flag);
-void store_receipt (Receipt *receipt);
+void set_receipt_hash (Receipt *receipt);
+void dump_receipt (Receipt *receipt);
 
 #endif /** RECEIPT_H */

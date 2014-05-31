@@ -5,6 +5,7 @@
 #include "util.h"
 #include "sha256.h"
 #include "block.h"
+#include "dir.h"
 
 void dump_block( Block block) {	
 	printf("Hash: "); sha2hex(block.hash);
@@ -66,13 +67,15 @@ int read_block_to_buffer (unsigned char *block_name, unsigned char *buffer)
     long blk_size;
 
     chdir (DIR_BLOCKS);
-    fd = open (block_name, O_RDONLY);
+    fd = open ((char *) block_name, O_RDONLY);
     chdir ("..");
     
     if (fd == -1)
         die ("read_block_to_buffer: cannot open block file");
+
     blk_size = file_size (fd);
     read (fd, buffer, blk_size);
     close (fd);
+    
     return blk_size;
 }

@@ -2,6 +2,6 @@
 #define PACKAGER_H
 
 void pack (char * file_path, unsigned int block_size);
-void unpack (char * path, int skip_integrity_flag);
+void unpack (char * file_path, int flag_skip_integrity);
 
 #endif /**  PACKAGER_H */

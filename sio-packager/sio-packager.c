@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <string.h>
+
 #include "packager.h"
+#include "util.h"
 
 int main ( int argc, char *argv[] ) 
 {
@@ -12,7 +15,7 @@ int main ( int argc, char *argv[] )
 	} else if ( strcmp (argv[1], "unpack") == 0 ) {
 		int skip_integrity = 0;
 		if ( argc == 4 )
-			if ( strcmp (argv[3], "--skip-check") == 0 )
+			if ( strcmp (argv[3], "--skip-integrity") == 0 )
 				skip_integrity = 1;
 		unpack (argv[2], skip_integrity);
 	}
