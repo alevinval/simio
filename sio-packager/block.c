@@ -7,9 +7,9 @@
 #include "block.h"
 #include "dir.h"
 
-void dump_block( Block block) {	
-	printf("Hash: "); sha2hex(block.hash);
-	printf("Length: %i", block.size);	
+void dump_block (Block *block) {	
+	printf("Hash: "); sha2hex(block->hash);
+	printf("Length: %i", block->size);	
 }
 
 int check_block_integrity (Block *block, unsigned char *buffer, int len)

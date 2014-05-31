@@ -4,10 +4,12 @@
 typedef struct {
 	unsigned char hash[32];
 	int size;
-	unsigned char * data;	
+	unsigned char * data;
+	void *next;
+	void *prev;
 } Block;
 
-void dump_block (Block block);
+void dump_block (Block *block);
 
 void write_block (Block *block, unsigned char *data);
 void buffer2block (Block *block, unsigned char *buffer, int len);
