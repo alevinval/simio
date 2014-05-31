@@ -18,9 +18,7 @@ void recover_original_file (Receipt *receipt)
     unsigned char *block_buffer;
     Block *block;
 
-    mv_parent ();
-    fd = open ((char *) receipt->name, O_RDWR | O_CREAT, 0777);
-    mv_package_root ();
+    open_create_file (receipt->name);
 
     if (fd == -1)
         die ("recover_original_file: cannot create the original file");
@@ -52,9 +50,7 @@ void recover_original_file_i (Receipt *receipt)
     strcat ((char *) tmp_name, (char *) receipt->name);
     strcat ((char *) tmp_name, ".tmp");
     
-    mv_parent ();
-    fd = open ((char *) tmp_name, O_RDWR | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
-    mv_package_root ();
+    fd = open_create_file (tmp_name);
 
     if (fd == -1)
         die ("recover_original_file_i: cannot create the original file");
@@ -131,9 +127,7 @@ void receipt_create ( Receipt *receipt,
     unsigned char *buffer = malloc (sizeof (unsigned char) * block_size);
     Block *block;
 
-    mv_parent ();
-    fd = open_file(file_path, READ_PERM);
-    mv_package_root ();
+    fd = open_file (file_path);
 
     strcpy ((char *) receipt->name, (char *) file_path);
     receipt->size = file_size (fd) / block_size;
@@ -208,13 +202,9 @@ void receipt_unpack ( Receipt *receipt,
 
 void receipt_store ( Receipt *receipt )
 {
-    int i, fd;
-    unsigned char name[SHA256_STRING];
+    int fd;
 
-    mv_package_receipts ();
-    fd = open (".receipt", O_RDWR | O_CREAT, 0666);
-    mv_parent ();
-
+    fd = open_create_receipt ((unsigned char *) ".receipt");
     write_receipt_header (fd, receipt);
     write_receipt_blocks (fd, receipt);
     close (fd);
@@ -224,10 +214,7 @@ void receipt_fetch ( Receipt *receipt )
 {
     int fd;
 
-    mv_package_receipts ();
-    fd = open (".receipt", O_RDONLY);
-    mv_parent ();
-
+    fd = open_receipt ((unsigned char *) ".receipt");
     read_receipt_header (fd, receipt);
     read_receipt_blocks (fd, receipt);
     close (fd);

@@ -25,36 +25,6 @@ check_block_integrity ( Block *block,
     return 1;
 }
 
-int
-open_block ( unsigned char *block_name )
-{
-    int fd;
-
-    mv_package_blocks ();
-    fd = open ((char *) block_name, O_RDONLY);
-    mv_parent ();
-
-    if (fd == -1)
-        die ("open_block: cannot open requested file");
-
-    return fd;
-}
-
-int
-open_create_block ( unsigned char *block_name )
-{
-    int fd;
-
-    mv_package_blocks ();
-    fd = open ((char *) block_name, O_RDWR | O_CREAT, 0666);
-    mv_parent ();
-
-    if (fd == -1)
-        die ("open_create_block: cannot open or create requested file");
-
-    return fd;
-}
-
 void 
 write_block ( Block *block,
               unsigned char *data )

@@ -56,13 +56,3 @@ int error(const char *err, ...)
 	va_end(params);
 	return -1;
 }
-
-int open_file (unsigned char *path, int flags)
-{
-	int fd;
-
-	fd = open ((const char *)path, flags);
-	if (fd == -1)
-		die ("open_file: cannot open file '%s', reason: %s\n", path, strerror(errno));
-	return fd;
-}
