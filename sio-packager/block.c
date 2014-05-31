@@ -61,21 +61,21 @@ void buffer2block (Block *block, unsigned char *buffer, int len)
     write_block (block, buffer);
 }
 
-int read_block_to_buffer (unsigned char *block_name, unsigned char *buffer)
+int block2buffer (unsigned char *block_name, unsigned char *buffer)
 {
     int fd;
-    long blk_size;
+    long block_size;
 
     chdir (DIR_BLOCKS);
     fd = open ((char *) block_name, O_RDONLY);
     chdir ("..");
     
     if (fd == -1)
-        die ("read_block_to_buffer: cannot open block file");
+        die ("block2buffer: cannot open block file");
 
-    blk_size = file_size (fd);
-    read (fd, buffer, blk_size);
+    block_size = file_size (fd);
+    read (fd, buffer, block_size);
     close (fd);
     
-    return blk_size;
+    return block_size;
 }

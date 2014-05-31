@@ -29,9 +29,9 @@ void dump_receipt (Receipt *receipt)
 
 void recover_original_file (Receipt *receipt)
 {
-    int i, fd, readed_bytes;
+    int i, fd, block_size;
     unsigned char block_name[SHA256_STRING];
-    unsigned char *blk_buffer;
+    unsigned char *block_buffer;
 
     mv_parent ();
     fd = open ((char *) receipt->name, O_RDWR | O_CREAT, 0777);
@@ -40,22 +40,22 @@ void recover_original_file (Receipt *receipt)
     if (fd == -1)
         die ("recover_original_file: cannot create the original file");
 
-    blk_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
+    block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
     for (i = 0; i < receipt->size; i++)
     {
         sha2hexf (block_name, receipt->blocks[i].hash);
-        readed_bytes = read_block_to_buffer (block_name, blk_buffer);
-        write (fd, blk_buffer, readed_bytes);
+        block_size = block2buffer (block_name, block_buffer);
+        write (fd, block_buffer, block_size);
     }
-    free (blk_buffer);
+    free (block_buffer);
 }
 
 void recover_original_file_i (Receipt *receipt)
 {
-    int i, fd, readed_bytes, integrity_error = 0;
+    int i, fd, block_size, integrity_error = 0;
     unsigned char tmp_name[FNAME_LEN];
     unsigned char block_name[SHA256_STRING];
-    unsigned char *blk_buffer;
+    unsigned char *block_buffer;
 
     strcpy ((char *) tmp_name, "");
     strcat ((char *) tmp_name, (char *) receipt->name);
@@ -68,18 +68,18 @@ void recover_original_file_i (Receipt *receipt)
     if (fd == -1)
         die ("recover_original_file_i: cannot create the original file");
 
-    blk_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
+    block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
     for (i = 0; i < receipt->size; i++)
     {
         sha2hexf (block_name, receipt->blocks[i].hash);
-        readed_bytes = read_block_to_buffer (block_name, blk_buffer);
-        if (check_block_integrity(&receipt->blocks[i], blk_buffer, readed_bytes) == 1)
+        block_size = block2buffer (block_name, block_buffer);
+        if (check_block_integrity(&receipt->blocks[i], block_buffer, block_size) == 1)
         {
-            write (fd, blk_buffer, readed_bytes);
+            write (fd, block_buffer, block_size);
         } else {
             unsigned char * block_hash_hex;
             sha2hexf(block_hash_hex, receipt->blocks[i].hash);
-            error ("integrity failure on Block %i [ %s ] \n", i, block_hash_hex);
+            error ("integrity failure in Block %i [ %s ] \n", i, block_hash_hex);
             integrity_error = 1;
             unlink ((char *) tmp_name);
             close (fd);
@@ -90,11 +90,11 @@ void recover_original_file_i (Receipt *receipt)
     if (!integrity_error)
     {
         unlink ((char *) receipt->name);
-        rename ((char *)tmp_name, (char *)receipt->name);
+        rename ((char *) tmp_name, (char *) receipt->name);
     }
 
     close (fd);
-    free (blk_buffer);
+    free (block_buffer);
 }
 
 /**

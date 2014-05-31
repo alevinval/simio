@@ -11,9 +11,9 @@ void dump_block (Block block);
 
 void write_block (Block *block, unsigned char *data);
 void buffer2block (Block *block, unsigned char *buffer, int len);
+int block2buffer (unsigned char *block_name, unsigned char *buffer);
 
 int check_block_integrity (Block *block, unsigned char *buffer, int len);
 
-int read_block_to_buffer (unsigned char *block_name, unsigned char *buffer);
 
 #endif /** BLOCK_H */
