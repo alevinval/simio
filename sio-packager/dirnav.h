@@ -2,6 +2,7 @@
 #define DIRNAV_H
 
 void mv_package_root ();
+void mv_package_blocks ();
 void mv_package_receipts ();
 void mv_parent ();
 

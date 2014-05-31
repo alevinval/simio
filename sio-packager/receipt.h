@@ -8,8 +8,7 @@ typedef struct {
 	unsigned char name[256];
 	int size;
 	int block_size;
-	Block *first_block;
-	Block *last_block;
+	BlockList *blocks;
 } Receipt;
 
 void receipt_create (Receipt *receipt, unsigned char *path, unsigned int blk_size);
@@ -23,6 +22,5 @@ void read_receipt_header (int fd, Receipt *receipt);
 void read_receipt_blocks (int fd, Receipt *receipt);
 
 void set_receipt_hash (Receipt *receipt);
-void dump_receipt (Receipt *receipt);
 
 #endif /** RECEIPT_H */

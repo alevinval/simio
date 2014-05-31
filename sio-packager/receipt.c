@@ -11,25 +11,6 @@
 #include "util.h"
 #include "block.h"
 
-void dump_receipt (Receipt *receipt)
-{
-    int i;
-    int blocks = receipt->size;
-    Block *block;
-    printf ("\n== RECEIPT DUMP ==\n");
-    printf ("Name: %s\n", receipt->name);
-    printf ("Hash: "); sha2hex(receipt->hash);
-    printf ("Size: %i\n\n", receipt->size);
-    printf ("== BLOCK DUMP == \n");
-    block = receipt->first_block;
-    while (block != NULL)
-    {
-        printf ("[ Block %i ]\n", i);
-        dump_block (block); printf ("\n\n");
-        block = block->next;
-    }
-}
-
 void recover_original_file (Receipt *receipt)
 {
     int i, fd, block_size;
@@ -45,16 +26,17 @@ void recover_original_file (Receipt *receipt)
         die ("recover_original_file: cannot create the original file");
 
     block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
-    block = receipt->first_block;
-    while ( block != NULL ) {
+
+    for ( block = receipt->blocks->head;
+          block != NULL;
+          block = block->next )
+    {
         sha2hexf (block_name, block->hash);
         block_size = block2buffer (block_name, block_buffer);
         write (fd, block_buffer, block_size);
-        block = block->next;
     }
-    
-    close (fd);
 
+    close (fd);
     free (block_buffer);
 }
 
@@ -78,8 +60,11 @@ void recover_original_file_i (Receipt *receipt)
         die ("recover_original_file_i: cannot create the original file");
 
     block_buffer = malloc (sizeof (unsigned char) * receipt->block_size);
-    block = receipt->first_block;
-    while ( block != NULL ) {
+    
+    for ( block = receipt->blocks->head;
+          block != NULL;
+          block = block->next )
+    {
         i++;
         sha2hexf (block_name, block->hash);
         block_size = block2buffer (block_name, block_buffer);
@@ -94,7 +79,6 @@ void recover_original_file_i (Receipt *receipt)
             mv_package_root ();
             break;
         }
-        block = block->next;
     }
 
     close (fd);
@@ -122,14 +106,16 @@ void set_receipt_hash (Receipt *receipt)
     unsigned char *hash_buffer = malloc (sizeof (unsigned char) * 32 * n_blocks);
     Block *block;
 
-    block = receipt->first_block;
-    while ( block != NULL ) {
+    i = 0;
+    for ( block = receipt->blocks->head;
+          block != NULL; 
+          block = block->next )
+    {
         memcpy (&hash_buffer[i * 32], block->hash, 32);
-        block = block->next;
+        i++;
     }
 
     sha256 (receipt->hash, hash_buffer, n_blocks * 32);
-
     free (hash_buffer);
 }
 
@@ -137,58 +123,33 @@ void set_receipt_hash (Receipt *receipt)
     Create a receipt structure and flush the blocks on the .package
     dir.
 */
-void receipt_create (   Receipt *receipt,
-                        unsigned char *file_path,
-                        unsigned int blk_size )
+void receipt_create ( Receipt *receipt,
+                      unsigned char *file_path,
+                      unsigned int block_size )
 {
-    int i;
-    int fd;
-    int len;
-    unsigned char *buffer = malloc (sizeof (unsigned char) * blk_size);
+    int i, fd, len;
+    unsigned char *buffer = malloc (sizeof (unsigned char) * block_size);
     Block *block;
 
-    chdir ("..");
+    mv_parent ();
     fd = open_file(file_path, READ_PERM);
-    chdir (DIR_PACKAGE);
+    mv_package_root ();
 
-    // Set receipt name
     strcpy ((char *) receipt->name, (char *) file_path);
-    // Set receipt size in blocks
-    receipt->size = file_size (fd) / blk_size + 1;
-    // Set the used block size
-    receipt->block_size = blk_size;
-    // Allocate space for blocks
-    //receipt->blocks = malloc (sizeof (Block) * receipt->size);
-    // Fill blocks with file data
+    receipt->size = file_size (fd) / block_size;
+    receipt->block_size = block_size;
+    receipt->blocks = block_list_new ();
 
-    // FIRST BLOCK
-    block = malloc(sizeof(Block));   
-    len = fill_buffer (fd, buffer, blk_size);
-    buffer2block (block, buffer, len);
-    receipt->first_block = block;
-    receipt->last_block = block;
-    free(block->data);
-    // LEFT BLOCKS
     for (i = 0; i < receipt->size; i++)
     {
         block = malloc(sizeof(Block));   
-        block->next = NULL;
-        block->prev = NULL;
-        // Store data in buffer
-        len = fill_buffer (fd, buffer, blk_size);
-        // Put data on block
+        len = fill_buffer (fd, buffer, block_size);
         buffer2block (block, buffer, len);
-        // Store block on receipt for further processing
-        receipt->last_block->next = block;
-        block->prev = receipt->last_block;
-        receipt->last_block = block;
-        free(block->data);
+        block_list_add (receipt->blocks, block);
     }
-
-    // Set the receipt hash
     set_receipt_hash (receipt);
-
-    free(buffer);
+    close (fd);
+    free (buffer);
 }
 
 void write_receipt_header (int fd, Receipt *receipt)
@@ -199,45 +160,40 @@ void write_receipt_header (int fd, Receipt *receipt)
     write (fd, &receipt->block_size, sizeof (int));
 }
 
-void write_receipt_blocks ( int fd, Receipt *receipt )
+void write_receipt_blocks ( int fd, 
+                            Receipt *receipt )
 {
     Block *block;
 
-    block = receipt->first_block;
-    while ( block != NULL ) {
+    for ( block = receipt->blocks->head; 
+          block != NULL; 
+          block = block->next ) 
+    {
         write (fd, block->hash, 32);
-        block = block->next;
     }
 }
 
-void read_receipt_header ( int fd, Receipt *receipt )
+void read_receipt_header ( int fd, 
+                           Receipt *receipt )
 {
     read (fd, receipt->hash, 32);
     read (fd, receipt->name, FNAME_LEN);
     read (fd, &receipt->size, sizeof (int));
     read (fd, &receipt->block_size, sizeof (int));
+    receipt->blocks = malloc (sizeof (BlockList));
 }
 
-void read_receipt_blocks (int fd, Receipt *receipt)
+void read_receipt_blocks ( int fd, 
+                           Receipt *receipt)
 {
     int i;
     Block *block;
 
-    block = malloc(sizeof(Block));
-    block->next = NULL;
-    block->prev = NULL;
-    read (fd, block->hash, 32);
-    receipt->first_block = block;
-    receipt->last_block = block;
-        
-    for (i = 1; i < receipt->size; i++) {
-        block = malloc(sizeof(Block));
-        block->next = NULL;
-        block->prev = NULL;
+    for (i = 0; i < receipt->size; i++) {
+        block = malloc (sizeof (Block));
         read (fd, block->hash, 32);
-        receipt->last_block->next = block;
-        block->prev = receipt->last_block;
-        receipt->last_block = block;
+        block->size = receipt->block_size;
+        block_list_add (receipt->blocks, block);
     }
 }
 
@@ -256,7 +212,7 @@ void receipt_store ( Receipt *receipt )
     unsigned char name[SHA256_STRING];
 
     mv_package_receipts ();
-    fd = open (".receipt", O_RDWR | O_CREAT, 0777);
+    fd = open (".receipt", O_RDWR | O_CREAT, 0666);
     mv_parent ();
 
     write_receipt_header (fd, receipt);
@@ -266,8 +222,10 @@ void receipt_store ( Receipt *receipt )
 
 void receipt_fetch ( Receipt *receipt )
 {
+    int fd;
+
     mv_package_receipts ();
-    int fd = open (".receipt", O_RDONLY);
+    fd = open (".receipt", O_RDONLY);
     mv_parent ();
 
     read_receipt_header (fd, receipt);

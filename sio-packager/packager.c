@@ -39,7 +39,7 @@ void pack ( char * file_path,
     receipt_store (&receipt);
 }
 
-void unpack ( char * file_path,
+void unpack ( char *file_path,
               int flag_skip_integrity )
 {
     Receipt receipt;

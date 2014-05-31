@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -6,13 +7,12 @@
 #include "sha256.h"
 #include "block.h"
 #include "dir.h"
+#include "dirnav.h"
 
-void dump_block (Block *block) {	
-	printf("Hash: "); sha2hex(block->hash);
-	printf("Length: %i", block->size);	
-}
-
-int check_block_integrity (Block *block, unsigned char *buffer, int len)
+int
+check_block_integrity ( Block *block, 
+                        unsigned char *buffer, 
+                        int len )
 {
     int i;
     unsigned char match_sha[32];
@@ -25,57 +25,95 @@ int check_block_integrity (Block *block, unsigned char *buffer, int len)
     return 1;
 }
 
-/**
-    Store the block in a file with the name being the SHA of the block.
-    Block for the metadata, buffer for the real data. Block->data field
-    is empty, so we keep RAM usage low for big files.
-*/
-void write_block (Block *block, unsigned char *data)
+int
+open_block ( unsigned char *block_name )
 {
     int fd;
-    unsigned char name[SHA256_STRING];
 
-    sha2hexf (name, block->hash);
+    mv_package_blocks ();
+    fd = open ((char *) block_name, O_RDONLY);
+    mv_parent ();
 
-    chdir (DIR_BLOCKS);
-    fd = open ((char *) name, O_RDWR | O_CREAT, 0777);
-    chdir ("..");
+    if (fd == -1)
+        die ("open_block: cannot open requested file");
 
-    if (fd < 0)
-        die ("write_block: cannot open file");
+    return fd;
+}
+
+int
+open_create_block ( unsigned char *block_name )
+{
+    int fd;
+
+    mv_package_blocks ();
+    fd = open ((char *) block_name, O_RDWR | O_CREAT, 0666);
+    mv_parent ();
+
+    if (fd == -1)
+        die ("open_create_block: cannot open or create requested file");
+
+    return fd;
+}
+
+void 
+write_block ( Block *block,
+              unsigned char *data )
+{
+    int fd;
+    unsigned char block_name[SHA256_STRING];
+
+    sha2hexf (block_name, block->hash);
+    fd = open_create_block (block_name);
     write (fd, data, block->size);
     close (fd);
 }
 
-/**
-    Given a block in a buffer, obtain the size, the sha identifier
-    and store the block as well.
-*/
-void buffer2block (Block *block, unsigned char *buffer, int len)
+void
+buffer2block ( Block *block,
+               unsigned char *buffer,
+               int len )
 {
-    // Set block data
     block->size = len;
     sha256 (block->hash, buffer, block->size);
-
-    // Persist the block
     write_block (block, buffer);
 }
 
-int block2buffer (unsigned char *block_name, unsigned char *buffer)
+int
+block2buffer ( unsigned char *block_name,
+               unsigned char *buffer )
 {
     int fd;
     long block_size;
 
-    chdir (DIR_BLOCKS);
-    fd = open ((char *) block_name, O_RDONLY);
-    chdir ("..");
-    
-    if (fd == -1)
-        die ("block2buffer: cannot open block file");
-
+    fd = open_block (block_name);
     block_size = file_size (fd);
     read (fd, buffer, block_size);
     close (fd);
     
     return block_size;
+}
+
+BlockList *
+block_list_new ()
+{
+    BlockList *list;
+    list = malloc (sizeof(BlockList));
+    list->size = 0;
+    return list;
+}
+
+void 
+block_list_add ( BlockList *list, 
+                 Block *block )
+{
+    if ( list->size == 0 ) {
+        list->head = block;
+        list->tail = block;
+        block->next = NULL;
+    } else {
+        list->tail->next = block;
+        list->tail = block;
+        block->next = NULL;
+    }
+    list->size++;
 }
