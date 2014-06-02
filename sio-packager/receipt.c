@@ -99,31 +99,6 @@ void set_receipt_hash(Receipt * receipt)
 	free(hash_buffer);
 }
 
-void
-receipt_create(Receipt * receipt,
-	       unsigned char *file_path, unsigned int block_size)
-{
-	int i, fd;
-	unsigned char *buffer = malloc(sizeof(unsigned char) * block_size);
-	Block *block;
-
-	fd = open_file(file_path);
-
-	strcpy((char *)receipt->name, (char *)file_path);
-	receipt->size = file_size(fd) / block_size;
-	receipt->block_size = block_size;
-	receipt->blocks = block_list_new();
-
-	for (i = 0; i < receipt->size; i++) {
-		block = block_create(fd, block_size, buffer);
-		block_list_add(receipt->blocks, block);
-	}
-
-	set_receipt_hash(receipt);
-	close(fd);
-	free(buffer);
-}
-
 void write_receipt_header(int fd, Receipt * receipt)
 {
 	write(fd, receipt->hash, 32);
@@ -161,6 +136,47 @@ void read_receipt_blocks(int fd, Receipt * receipt)
 		block->size = receipt->block_size;
 		block_list_add(receipt->blocks, block);
 	}
+}
+
+void set_receipt_header(Receipt * receipt, unsigned char *file_path,
+			unsigned int block_size)
+{
+	int fd;
+
+	fd = open_file(file_path);
+	strcpy((char *)receipt->name, (char *)file_path);
+	receipt->size = file_size(fd) / block_size;
+	receipt->block_size = block_size;
+	receipt->blocks = block_list_new();
+
+	close(fd);
+}
+
+void build_receipt(Receipt * receipt)
+{
+	int i, fd;
+	unsigned char *buffer;
+	Block *block;
+
+	fd = open_file(receipt->name);
+	buffer = malloc(sizeof(unsigned char) * receipt->block_size);
+	for (i = 0; i < receipt->size; i++) {
+		block = block_new();
+		block_fill(block, fd, receipt->block_size, buffer);
+		block_list_add(receipt->blocks, block);
+		block_store(block);
+	}
+
+	free(buffer);
+}
+
+void
+receipt_create(Receipt * receipt,
+	       unsigned char *file_path, unsigned int block_size)
+{
+	set_receipt_header(receipt, file_path, block_size);
+	build_receipt(receipt);
+	set_receipt_hash(receipt);
 }
 
 void receipt_unpack(Receipt * receipt, int skip_integrity_flag)

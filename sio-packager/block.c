@@ -20,9 +20,9 @@ int check_block_integrity(Block * block, unsigned char *buffer, int len)
 	return 1;
 }
 
-void buffer_to_block(Block * block, unsigned char *buffer)
+void set_block_hash(Block * block)
 {
-	sha256(block->hash, buffer, block->size);
+	sha256(block->hash, block->buffer, block->size);
 }
 
 int block_read(unsigned char *block_name, unsigned char *buffer)
@@ -38,25 +38,33 @@ int block_read(unsigned char *block_name, unsigned char *buffer)
 	return block_size;
 }
 
-void block_store(Block * block, unsigned char *data)
+void block_store(Block * block)
 {
 	int fd;
 	unsigned char block_name[SHA256_STRING];
 
 	sha2hexf(block_name, block->hash);
 	fd = open_create_block(block_name);
-	write(fd, data, block->size);
+	write(fd, block->buffer, block->size);
+	block->buffer = NULL;
 	close(fd);
 }
 
-Block *block_create(int fd, int block_size, unsigned char *buffer)
+Block *block_new()
 {
 	Block *block = malloc(sizeof(Block));
-	block->size = block_size;
-	fill_buffer(fd, buffer, block_size);
-	buffer_to_block(block, buffer);
-	block_store(block, buffer);
+	block->size = 0;
+	block->next = NULL;
+	block->buffer = NULL;
 	return block;
+}
+
+void *block_fill(Block * block, int file, int block_size, unsigned char *buffer)
+{
+	block->buffer = buffer;
+	block->size = block_size;
+	fill_buffer(file, buffer, block_size);
+	set_block_hash(block);
 }
 
 BlockList *block_list_new()

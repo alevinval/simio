@@ -3,7 +3,7 @@
 
 typedef struct {
 	unsigned char hash[32];
-	unsigned char *data;
+	unsigned char *buffer;
 	int size;
 	void *next;
 } Block;
@@ -18,14 +18,17 @@ BlockList *block_list_new();
 
 void block_list_add(BlockList * list, Block * block);
 
-void block_store(Block * block, unsigned char *data);
+void block_store(Block * block);
 
-void buffer_to_block(Block * block, unsigned char *buffer);
+void set_block_hash(Block * block);
 
 int block_read(unsigned char *block_name, unsigned char *buffer);
 
 int check_block_integrity(Block * block, unsigned char *buffer, int len);
 
-Block *block_create(int fd, int block_size, unsigned char *buffer);
+void *block_fill(Block * block, int file, int block_size,
+		 unsigned char *buffer);
+
+Block *block_new();
 
 #endif /** BLOCK_H */
