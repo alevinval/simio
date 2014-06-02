@@ -1,8 +1,11 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include "sha256.h"
+
 typedef struct {
-	unsigned char hash[32];
+	unsigned char sha2[32];
+	unsigned char name[SHA256_STRING];
 	unsigned char *buffer;
 	int size;
 	void *next;
@@ -14,21 +17,16 @@ typedef struct {
 	Block *tail;
 } BlockList;
 
-BlockList *block_list_new();
-
-void block_list_add(BlockList * list, Block * block);
-
-void block_store(Block * block);
-
 void set_block_hash(Block * block);
+int check_block_integrity(Block * block);
 
-int block_read(unsigned char *block_name, unsigned char *buffer);
+Block *block_alloc();
 
-int check_block_integrity(Block * block, unsigned char *buffer, int len);
+void fetch_block(Block * block);	//unsigned char *block_name, unsigned char *buffer);
+void store_block(Block * block);
+void fill_block(Block * block, int file, int block_size, unsigned char *buffer);
 
-void *block_fill(Block * block, int file, int block_size,
-		 unsigned char *buffer);
-
-Block *block_new();
+BlockList *block_list_alloc();
+void block_list_add(BlockList * list, Block * block);
 
 #endif /** BLOCK_H */

@@ -7,14 +7,14 @@
 #include "block.h"
 #include "dirnav.h"
 
-int check_block_integrity(Block * block, unsigned char *buffer, int len)
+int check_block_integrity(Block * block)
 {
 	int i;
 	unsigned char match_sha[32];
 
-	sha256(match_sha, buffer, len);
+	sha256(match_sha, block->buffer, block->size);
 	for (i = 0; i < 32; i++)
-		if (match_sha[i] != block->hash[i])
+		if (match_sha[i] != block->sha2[i])
 			return -1;
 
 	return 1;
@@ -22,35 +22,36 @@ int check_block_integrity(Block * block, unsigned char *buffer, int len)
 
 void set_block_hash(Block * block)
 {
-	sha256(block->hash, block->buffer, block->size);
+	sha256(block->sha2, block->buffer, block->size);
 }
 
-int block_read(unsigned char *block_name, unsigned char *buffer)
+void fetch_block(Block * block)
 {
 	int fd;
 	long block_size;
 
-	fd = open_block(block_name);
+	fd = open_block(block->name);
 	block_size = file_size(fd);
-	read(fd, buffer, block_size);
-	close(fd);
 
-	return block_size;
+	if (block_size != block->size) {
+		die("file is larger than block size in block [%s]",
+		    block->name);
+	}
+	read(fd, block->buffer, block_size);
+	close(fd);
 }
 
-void block_store(Block * block)
+void store_block(Block * block)
 {
 	int fd;
-	unsigned char block_name[SHA256_STRING];
 
-	sha2hexf(block_name, block->hash);
-	fd = open_create_block(block_name);
+	fd = open_create_block(block->name);
 	write(fd, block->buffer, block->size);
 	block->buffer = NULL;
 	close(fd);
 }
 
-Block *block_new()
+Block *block_alloc()
 {
 	Block *block = malloc(sizeof(Block));
 	block->size = 0;
@@ -59,15 +60,18 @@ Block *block_new()
 	return block;
 }
 
-void *block_fill(Block * block, int file, int block_size, unsigned char *buffer)
+void fill_block(Block * block, int file, int block_size, unsigned char *buffer)
 {
+	int readed_bytes;
+
 	block->buffer = buffer;
-	block->size = block_size;
-	fill_buffer(file, buffer, block_size);
+	readed_bytes = fill_buffer(file, buffer, block_size);
+	block->size = readed_bytes;
 	set_block_hash(block);
+	sha2hexf(block->name, block->sha2);
 }
 
-BlockList *block_list_new()
+BlockList *block_list_alloc()
 {
 	BlockList *list;
 	list = malloc(sizeof(BlockList));

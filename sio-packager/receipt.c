@@ -24,9 +24,10 @@ void recover_original_file(Receipt * receipt)
 	block_buffer = malloc(sizeof(unsigned char) * receipt->block_size);
 
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
-		sha2hexf(block_name, block->hash);
-		block_size = block_read(block_name, block_buffer);
-		write(fd, block_buffer, block_size);
+		block->buffer = block_buffer;
+		fetch_block(block);
+		write(fd, block->buffer, block->size);
+		block->buffer = NULL;
 	}
 
 	close(fd);
@@ -35,9 +36,8 @@ void recover_original_file(Receipt * receipt)
 
 void recover_original_file_i(Receipt * receipt)
 {
-	int i, fd, block_size, integrity_error = 0;
+	int i, fd, integrity_error = 0;
 	unsigned char tmp_name[FNAME_LEN];
-	unsigned char block_name[SHA256_STRING];
 	unsigned char *block_buffer;
 	Block *block;
 
@@ -55,14 +55,13 @@ void recover_original_file_i(Receipt * receipt)
 	i = 0;
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
 		i++;
-		sha2hexf(block_name, block->hash);
-		block_size = block_read(block_name, block_buffer);
-		if (check_block_integrity(block, block_buffer, block_size)
-		    == 1) {
-			write(fd, block_buffer, block_size);
+		block->buffer = block_buffer;
+		fetch_block(block);
+		if (check_block_integrity(block) == 1) {
+			write(fd, block->buffer, block->size);
 		} else {
 			error("integrity failure in Block %i\n [ %s ]",
-			      i, block_name);
+			      i, block->name);
 			integrity_error = 1;
 			remove_file(tmp_name);
 			break;
@@ -91,17 +90,17 @@ void set_receipt_hash(Receipt * receipt)
 
 	i = 0;
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
-		memcpy(&hash_buffer[i * 32], block->hash, 32);
+		memcpy(&hash_buffer[i * 32], block->sha2, 32);
 		i++;
 	}
 
-	sha256(receipt->hash, hash_buffer, n_blocks * 32);
+	sha256(receipt->sha2, hash_buffer, n_blocks * 32);
 	free(hash_buffer);
 }
 
 void write_receipt_header(int fd, Receipt * receipt)
 {
-	write(fd, receipt->hash, 32);
+	write(fd, receipt->sha2, 32);
 	write(fd, receipt->name, FNAME_LEN);
 	write(fd, &receipt->size, sizeof(int));
 	write(fd, &receipt->block_size, sizeof(int));
@@ -112,17 +111,17 @@ void write_receipt_blocks(int fd, Receipt * receipt)
 	Block *block;
 
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
-		write(fd, block->hash, 32);
+		write(fd, block->sha2, 32);
 	}
 }
 
 void read_receipt_header(int fd, Receipt * receipt)
 {
-	read(fd, receipt->hash, 32);
+	read(fd, receipt->sha2, 32);
 	read(fd, receipt->name, FNAME_LEN);
 	read(fd, &receipt->size, sizeof(int));
 	read(fd, &receipt->block_size, sizeof(int));
-	receipt->blocks = malloc(sizeof(BlockList));
+	receipt->blocks = block_list_alloc();
 }
 
 void read_receipt_blocks(int fd, Receipt * receipt)
@@ -131,9 +130,10 @@ void read_receipt_blocks(int fd, Receipt * receipt)
 	Block *block;
 
 	for (i = 0; i < receipt->size; i++) {
-		block = malloc(sizeof(Block));
-		read(fd, block->hash, 32);
+		block = block_alloc();
+		read(fd, block->sha2, 32);
 		block->size = receipt->block_size;
+		sha2hexf(block->name, block->sha2);
 		block_list_add(receipt->blocks, block);
 	}
 }
@@ -147,7 +147,7 @@ void set_receipt_header(Receipt * receipt, unsigned char *file_path,
 	strcpy((char *)receipt->name, (char *)file_path);
 	receipt->size = file_size(fd) / block_size;
 	receipt->block_size = block_size;
-	receipt->blocks = block_list_new();
+	receipt->blocks = block_list_alloc();
 
 	close(fd);
 }
@@ -161,17 +161,17 @@ void build_receipt(Receipt * receipt)
 	fd = open_file(receipt->name);
 	buffer = malloc(sizeof(unsigned char) * receipt->block_size);
 	for (i = 0; i < receipt->size; i++) {
-		block = block_new();
-		block_fill(block, fd, receipt->block_size, buffer);
+		block = block_alloc();
+		fill_block(block, fd, receipt->block_size, buffer);
 		block_list_add(receipt->blocks, block);
-		block_store(block);
+		store_block(block);
 	}
 
 	free(buffer);
 }
 
 void
-receipt_create(Receipt * receipt,
+create_receipt(Receipt * receipt,
 	       unsigned char *file_path, unsigned int block_size)
 {
 	set_receipt_header(receipt, file_path, block_size);
@@ -179,7 +179,7 @@ receipt_create(Receipt * receipt,
 	set_receipt_hash(receipt);
 }
 
-void receipt_unpack(Receipt * receipt, int skip_integrity_flag)
+void unpack_receipt(Receipt * receipt, int skip_integrity_flag)
 {
 	if (skip_integrity_flag)
 		recover_original_file(receipt);
@@ -187,7 +187,7 @@ void receipt_unpack(Receipt * receipt, int skip_integrity_flag)
 		recover_original_file_i(receipt);
 }
 
-void receipt_store(Receipt * receipt)
+void store_receipt(Receipt * receipt)
 {
 	int fd;
 
@@ -197,7 +197,7 @@ void receipt_store(Receipt * receipt)
 	close(fd);
 }
 
-void receipt_fetch(Receipt * receipt)
+void fetch_receipt(Receipt * receipt)
 {
 	int fd;
 

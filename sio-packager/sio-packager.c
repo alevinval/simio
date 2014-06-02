@@ -9,8 +9,8 @@ void pack(char *file_path, unsigned int block_size)
 	Receipt receipt;
 
 	package_prepare();
-	receipt_create(&receipt, (unsigned char *)file_path, block_size);
-	receipt_store(&receipt);
+	create_receipt(&receipt, (unsigned char *)file_path, block_size);
+	store_receipt(&receipt);
 }
 
 void unpack(char *file_path, int flag_skip_integrity)
@@ -18,8 +18,8 @@ void unpack(char *file_path, int flag_skip_integrity)
 	Receipt receipt;
 
 	package_prepare();
-	receipt_fetch(&receipt);
-	receipt_unpack(&receipt, flag_skip_integrity);
+	fetch_receipt(&receipt);
+	unpack_receipt(&receipt, flag_skip_integrity);
 }
 
 int main(int argc, char *argv[])
