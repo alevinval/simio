@@ -8,20 +8,20 @@
 
 #include "util.h"
 
-long file_size (int fd)
+long file_size(int fd)
 {
-    off_t fsize;
-    fsize = lseek (fd, 0, SEEK_END);
-    lseek (fd, 0, SEEK_SET);
-    return fsize;
+	off_t fsize;
+	fsize = lseek(fd, 0, SEEK_END);
+	lseek(fd, 0, SEEK_SET);
+	return fsize;
 }
 
 /**
     Reads a block of data from a file, puts the data in a buffer
 */
-int fill_buffer (int fd, unsigned char *buffer, int blk_size)
+int fill_buffer(int fd, unsigned char *buffer, int blk_size)
 {
-    return read (fd, buffer, blk_size);
+	return read(fd, buffer, blk_size);
 }
 
 static void report(const char *prefix, const char *err, va_list params)
