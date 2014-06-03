@@ -5,7 +5,7 @@
 
 struct block {
 	unsigned char sha2[32];
-	unsigned char name[SHA256_STRING];
+	unsigned char name[SHA2_STRING];
 	unsigned char *buffer;
 	int size;
 	char corrupted;

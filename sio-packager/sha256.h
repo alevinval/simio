@@ -9,7 +9,7 @@
 #define uint32 unsigned long int
 #endif
 
-#define SHA256_STRING 65
+#define SHA2_STRING 65
 
 typedef struct {
 	uint32 total[2];

@@ -10,20 +10,23 @@
 
 int check_block_integrity(struct block *block)
 {
-	int i;
 	unsigned char match_sha[32];
-
 	sha256(match_sha, block->buffer, block->size);
-	for (i = 0; i < 32; i++)
-		if (match_sha[i] != block->sha2[i])
-			return -1;
-
-	return 1;
+	return !memcmp(match_sha, block->sha2, 32);
 }
 
 void set_block_hash(struct block *block)
 {
+	if (!block->buffer)
+		die("cannot set block hash if there is no data-buffer\n");
+
 	sha256(block->sha2, block->buffer, block->size);
+	sha2hexf(block->name, block->sha2);
+}
+
+struct block *block_alloc()
+{
+	return calloc(1, sizeof(struct block));
 }
 
 struct block *fetch_block(unsigned char *block_sha2, int block_size)
@@ -42,14 +45,14 @@ void fetch_block_data(struct block *block)
 	int fd;
 	long block_size;
 
-	if (block->buffer == NULL)
+	if (!block->buffer)
 		die("cannot fetch block without allocating a buffer\n");
 
 	fd = open_block(block->name);
 	block_size = file_size(fd);
 
 	if (block_size > block->size) {
-		die("fetching block bigger than block_size on block [%s]",
+		die("fetching block bigger than block_size on block [%s]\n",
 		    block->name);
 	}
 
@@ -62,20 +65,12 @@ void store_block(struct block *block)
 {
 	int fd;
 
+	if (!block->buffer)
+		die("cannot store a block without data-buffer\n");
+
 	fd = open_create_block(block->name);
 	write(fd, block->buffer, block->size);
-	block->buffer = NULL;
 	close(fd);
-}
-
-struct block *block_alloc()
-{
-	struct block *block = malloc(sizeof(struct block));
-	block->size = 0;
-	block->next = NULL;
-	block->buffer = NULL;
-	block->corrupted = 0;
-	return block;
 }
 
 struct block *block_from_buffer(unsigned char *buffer, int readed_bytes)
@@ -86,28 +81,24 @@ struct block *block_from_buffer(unsigned char *buffer, int readed_bytes)
 	block->buffer = buffer;
 	block->size = readed_bytes;
 	set_block_hash(block);
-	sha2hexf(block->name, block->sha2);
 	return block;
 }
 
 struct block_list *block_list_alloc()
 {
-	struct block_list *list;
-	list = malloc(sizeof(struct block_list));
-	list->size = 0;
-	return list;
+	return calloc(1, sizeof(struct block_list));
 }
 
 void block_list_add(struct block_list *list, struct block *block)
 {
-	if (list->size == 0) {
-		list->head = block;
-		list->tail = block;
-		block->next = NULL;
+	if (!list)
+		die("cannot add block to unallocated block_list\n");
+
+	if (!list->size) {
+		list->head = list->tail = block;
 	} else {
 		list->tail->next = block;
 		list->tail = block;
-		block->next = NULL;
 	}
 	list->size++;
 }
