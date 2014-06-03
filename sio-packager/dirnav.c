@@ -26,93 +26,95 @@ void mv_parent()
 	chdir("..");
 }
 
-int open_block(unsigned char *block_name)
+int open_block(unsigned char *name)
 {
 	int fd;
 
 	mv_package_blocks();
-	fd = open((char *)block_name, O_RDONLY);
+	fd = open((char *)name, O_RDONLY);
 	mv_parent();
 
-	if (fd == -1)
-		die("open_block: cannot open requested file");
+	if (fd < 0)
+		die("open_block: cannot open requested block\n[%s]\n", name);
 
 	return fd;
 }
 
-int open_create_block(unsigned char *block_name)
+int open_create_block(unsigned char *name)
 {
 	int fd;
 
 	mv_package_blocks();
-	fd = open((char *)block_name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
 	mv_parent();
 
-	if (fd == -1)
-		die("open_create_block: cannot open or create requested file");
-
+	if (fd < 0)
+		die("open_create_block: cannot open requested block\n[%s]\n",
+		    name);
 	return fd;
 }
 
-int open_receipt(unsigned char *receipt_name)
+int open_receipt(unsigned char *name)
 {
 	int fd;
 
 	mv_package_receipts();
-	fd = open((char *)receipt_name, O_RDONLY);
+	fd = open((char *)name, O_RDONLY);
 	mv_parent();
 
-	if (fd == -1)
-		die("open_receipt: cannot open requested file");
+	if (fd < 0)
+		die("open_receipt: cannot open requested receipt \"%s\"\n",
+		    name);
 
 	return fd;
 }
 
-int open_create_receipt(unsigned char *receipt_name)
+int open_create_receipt(unsigned char *name)
 {
 	int fd;
 
 	mv_package_receipts();
-	fd = open((char *)receipt_name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
 	mv_parent();
 
-	if (fd == -1)
-		die("open_create_receipt: cannot open or create requested file");
+	if (fd < 0)
+		die("open_create_receipt: cannot create requested receipt \"%s\"\n", name);
 
 	return fd;
 }
 
-int open_file(unsigned char *file_name)
+int open_file(unsigned char *name)
 {
 	int fd;
 
 	mv_parent();
-	fd = open((char *)file_name, READ_PERM);
+	fd = open((char *)name, READ_PERM);
 	mv_package_root();
 
-	if (fd == -1)
-		die("open_file: cannot open requested file");
+	if (fd < 0)
+		die("open_file: cannot open requested file \"%s\"\n", name);
 
 	return fd;
 }
 
-int open_create_file(unsigned char *file_name)
+int open_create_file(unsigned char *name)
 {
 	int fd;
 
 	mv_parent();
-	fd = open((char *)file_name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
 	mv_package_root();
 
-	if (fd == -1)
-		die("open_create_file: cannot open or create the requested file");
+	if (fd < 0)
+		die("open_create_file: cannot create requested file \"%s\"\n",
+		    name);
 
 	return fd;
 }
 
-void remove_file(unsigned char *file_name)
+void remove_file(unsigned char *name)
 {
 	mv_parent();
-	unlink((char *)file_name);
+	unlink((char *)name);
 	mv_package_root();
 }
