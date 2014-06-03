@@ -9,8 +9,10 @@ typedef struct {
 	unsigned char sha2[32];
 	unsigned char name[FNAME_LEN];
 	int size;
+	int parities_num;
 	int block_size;
 	BlockList *blocks;
+	BlockList *parities;
 } Receipt;
 
 void
