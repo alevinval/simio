@@ -8,6 +8,7 @@ typedef struct {
 	unsigned char name[SHA256_STRING];
 	unsigned char *buffer;
 	int size;
+	char corrupted;
 	void *next;
 } Block;
 
@@ -17,16 +18,17 @@ typedef struct {
 	Block *tail;
 } BlockList;
 
-void set_block_hash(Block * block);
 int check_block_integrity(Block * block);
+void set_block_hash(Block *block);
+
+Block *fetch_block(unsigned char *block_sha2, int block_size);
+void fetch_block_data(Block * block);
+void store_block(Block *block);
 
 Block *block_alloc();
-
-void fetch_block(Block * block);	//unsigned char *block_name, unsigned char *buffer);
-void store_block(Block * block);
-void fill_block(Block * block, int file, int block_size, unsigned char *buffer);
+Block *block_from_buffer(unsigned char *buffer, int readed_bytes);
 
 BlockList *block_list_alloc();
-void block_list_add(BlockList * list, Block * block);
+void block_list_add(BlockList *list, Block *block);
 
 #endif /** BLOCK_H */
