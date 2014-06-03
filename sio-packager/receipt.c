@@ -10,13 +10,13 @@
 #include "dir.h"
 #include "util.h"
 
-void recover_block(Receipt * receipt, Block * parity, int fd)
+void recover_block(struct receipt *receipt, struct block *parity, int fd)
 {
 	int i;
 	unsigned char *missing_buffer;
 	unsigned char *block_buffer;
-	Block *block;
-	Block *missing_block;
+	struct block *block;
+	struct block *missing_block;
 
 	block_buffer = malloc(sizeof(unsigned char) * receipt->block_size);
 	missing_buffer = malloc(sizeof(unsigned char) * receipt->block_size);
@@ -37,11 +37,11 @@ void recover_block(Receipt * receipt, Block * parity, int fd)
 	write(fd, missing_block->buffer, receipt->block_size);
 }
 
-void recover_original_file(Receipt * receipt)
+void recover_original_file(struct receipt *receipt)
 {
 	int fd;
 	unsigned char *block_buffer;
-	Block *block;
+	struct block *block;
 
 	fd = open_create_file(receipt->name);
 
@@ -61,12 +61,12 @@ void recover_original_file(Receipt * receipt)
 	free(block_buffer);
 }
 
-void recover_original_file_i(Receipt * receipt)
+void recover_original_file_i(struct receipt *receipt)
 {
 	int i, fd, integrity_error = 0;
 	unsigned char tmp_name[FNAME_LEN];
 	unsigned char *block_buffer;
-	Block *block;
+	struct block *block;
 
 	strcpy((char *)tmp_name, "");
 	strcat((char *)tmp_name, (char *)receipt->name);
@@ -91,7 +91,7 @@ void recover_original_file_i(Receipt * receipt)
 			      i, block->name);
 
 			block->corrupted = 1;
-			Block *parity = receipt->parities->head;
+			struct block *parity = receipt->parities->head;
 
 			printf("recovering Parity [%s]\n", parity->name);
 			parity->buffer =
@@ -121,12 +121,12 @@ void recover_original_file_i(Receipt * receipt)
 	free(block_buffer);
 }
 
-void set_receipt_hash(Receipt * receipt)
+void set_receipt_hash(struct receipt *receipt)
 {
 	int i;
 	unsigned char *hash_buffer =
 	    malloc(sizeof(unsigned char) * 32 * receipt->size);
-	Block *block;
+	struct block *block;
 
 	i = 0;
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
@@ -138,7 +138,7 @@ void set_receipt_hash(Receipt * receipt)
 	free(hash_buffer);
 }
 
-void write_receipt_header(int fd, Receipt * receipt)
+void write_receipt_header(int fd, struct receipt *receipt)
 {
 	write(fd, receipt->sha2, 32);
 	write(fd, receipt->name, FNAME_LEN);
@@ -147,9 +147,9 @@ void write_receipt_header(int fd, Receipt * receipt)
 	write(fd, &receipt->block_size, sizeof(int));
 }
 
-void write_receipt_blocks(int fd, Receipt * receipt)
+void write_receipt_blocks(int fd, struct receipt *receipt)
 {
-	Block *block;
+	struct block *block;
 
 	for (block = receipt->blocks->head; block != NULL; block = block->next) {
 		write(fd, block->sha2, 32);
@@ -161,7 +161,7 @@ void write_receipt_blocks(int fd, Receipt * receipt)
 	}
 }
 
-void read_receipt_header(int fd, Receipt * receipt)
+void read_receipt_header(int fd, struct receipt *receipt)
 {
 	read(fd, receipt->sha2, 32);
 	read(fd, receipt->name, FNAME_LEN);
@@ -172,11 +172,11 @@ void read_receipt_header(int fd, Receipt * receipt)
 	receipt->parities = block_list_alloc();
 }
 
-void read_receipt_blocks(int fd, Receipt * receipt)
+void read_receipt_blocks(int fd, struct receipt *receipt)
 {
 	int i;
 	unsigned char block_sha2[32];
-	Block *block;
+	struct block *block;
 
 	for (i = 0; i < receipt->size; i++) {
 		read(fd, &block_sha2, 32);
@@ -190,7 +190,7 @@ void read_receipt_blocks(int fd, Receipt * receipt)
 	}
 }
 
-void set_receipt_header(Receipt * receipt, unsigned char *file_path,
+void set_receipt_header(struct receipt *receipt, unsigned char *file_path,
 			unsigned int block_size)
 {
 	int fd, extra;
@@ -208,11 +208,11 @@ void set_receipt_header(Receipt * receipt, unsigned char *file_path,
 	receipt->parities = block_list_alloc();
 }
 
-void build_receipt(Receipt * receipt)
+void build_receipt(struct receipt *receipt)
 {
 	int i, fd, readed_bytes;
 	unsigned char *buffer;
-	Block *block;
+	struct block *block;
 
 	fd = open_file(receipt->name);
 	buffer = malloc(sizeof(unsigned char) * receipt->block_size);
@@ -226,12 +226,12 @@ void build_receipt(Receipt * receipt)
 	free(buffer);
 }
 
-void build_parity(Receipt * receipt)
+void build_parity(struct receipt *receipt)
 {
 	// Global parity atm
 	int i;
-	Block *parity;
-	Block *block;
+	struct block *parity;
+	struct block *block;
 	unsigned char *block_buffer;
 	unsigned char *parity_buffer;
 
@@ -262,7 +262,7 @@ void build_parity(Receipt * receipt)
 }
 
 void
-create_receipt(Receipt * receipt,
+create_receipt(struct receipt *receipt,
 	       unsigned char *file_path, unsigned int block_size)
 {
 	set_receipt_header(receipt, file_path, block_size);
@@ -271,7 +271,7 @@ create_receipt(Receipt * receipt,
 	build_parity(receipt);
 }
 
-void unpack_receipt(Receipt * receipt, int skip_integrity_flag)
+void unpack_receipt(struct receipt *receipt, int skip_integrity_flag)
 {
 	if (skip_integrity_flag)
 		recover_original_file(receipt);
@@ -279,7 +279,7 @@ void unpack_receipt(Receipt * receipt, int skip_integrity_flag)
 		recover_original_file_i(receipt);
 }
 
-void store_receipt(Receipt * receipt)
+void store_receipt(struct receipt *receipt)
 {
 	int fd;
 
@@ -289,7 +289,7 @@ void store_receipt(Receipt * receipt)
 	close(fd);
 }
 
-void fetch_receipt(Receipt * receipt)
+void fetch_receipt(struct receipt *receipt)
 {
 	int fd;
 

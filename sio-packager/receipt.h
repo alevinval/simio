@@ -5,21 +5,22 @@
 #include "dir.h"
 #include "sha256.h"
 
-typedef struct {
+struct receipt {
 	unsigned char sha2[32];
 	unsigned char name[FNAME_LEN];
 	int size;
 	int parities_num;
 	int block_size;
-	BlockList *blocks;
-	BlockList *parities;
-} Receipt;
+	struct block_list *blocks;
+	struct block_list *parities;
+};
 
 void
-create_receipt(Receipt * receipt, unsigned char *path, unsigned int blk_size);
+create_receipt(struct receipt *receipt, unsigned char *path,
+	       unsigned int blk_size);
 
-void unpack_receipt(Receipt * receipt, int skip_integrity_flag);
-void store_receipt(Receipt * receipt);
-void fetch_receipt(Receipt * receipt);
+void unpack_receipt(struct receipt *receipt, int skip_integrity_flag);
+void store_receipt(struct receipt *receipt);
+void fetch_receipt(struct receipt *receipt);
 
 #endif /** RECEIPT_H */

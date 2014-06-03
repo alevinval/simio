@@ -3,32 +3,32 @@
 
 #include "sha256.h"
 
-typedef struct {
+struct block {
 	unsigned char sha2[32];
 	unsigned char name[SHA256_STRING];
 	unsigned char *buffer;
 	int size;
 	char corrupted;
 	void *next;
-} Block;
+};
 
-typedef struct {
+struct block_list {
 	int size;
-	Block *head;
-	Block *tail;
-} BlockList;
+	struct block *head;
+	struct block *tail;
+};
 
-int check_block_integrity(Block * block);
-void set_block_hash(Block *block);
+int check_block_integrity(struct block *block);
+void set_block_hash(struct block *block);
 
-Block *fetch_block(unsigned char *block_sha2, int block_size);
-void fetch_block_data(Block * block);
-void store_block(Block *block);
+struct block *fetch_block(unsigned char *block_sha2, int block_size);
+void fetch_block_data(struct block *block);
+void store_block(struct block *block);
 
-Block *block_alloc();
-Block *block_from_buffer(unsigned char *buffer, int readed_bytes);
+struct block *block_alloc();
+struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
 
-BlockList *block_list_alloc();
-void block_list_add(BlockList *list, Block *block);
+struct block_list *block_list_alloc();
+void block_list_add(struct block_list *list, struct block *block);
 
 #endif /** BLOCK_H */

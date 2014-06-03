@@ -6,7 +6,7 @@
 
 void pack(char *file_path, unsigned int block_size)
 {
-	Receipt receipt;
+	struct receipt receipt;
 
 	package_prepare();
 	create_receipt(&receipt, (unsigned char *)file_path, block_size);
@@ -15,7 +15,7 @@ void pack(char *file_path, unsigned int block_size)
 
 void unpack(char *file_path, int flag_skip_integrity)
 {
-	Receipt receipt;
+	struct receipt receipt;
 
 	package_prepare();
 	fetch_receipt(&receipt);

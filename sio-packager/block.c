@@ -8,7 +8,7 @@
 #include "block.h"
 #include "dirnav.h"
 
-int check_block_integrity(Block * block)
+int check_block_integrity(struct block *block)
 {
 	int i;
 	unsigned char match_sha[32];
@@ -21,14 +21,14 @@ int check_block_integrity(Block * block)
 	return 1;
 }
 
-void set_block_hash(Block * block)
+void set_block_hash(struct block *block)
 {
 	sha256(block->sha2, block->buffer, block->size);
 }
 
-Block *fetch_block(unsigned char *block_sha2, int block_size)
+struct block *fetch_block(unsigned char *block_sha2, int block_size)
 {
-	Block *block;
+	struct block *block;
 
 	block = block_alloc();
 	memcpy(block->sha2, block_sha2, 32);
@@ -37,7 +37,7 @@ Block *fetch_block(unsigned char *block_sha2, int block_size)
 	return block;
 }
 
-void fetch_block_data(Block * block)
+void fetch_block_data(struct block *block)
 {
 	int fd;
 	long block_size;
@@ -58,7 +58,7 @@ void fetch_block_data(Block * block)
 	close(fd);
 }
 
-void store_block(Block * block)
+void store_block(struct block *block)
 {
 	int fd;
 
@@ -68,9 +68,9 @@ void store_block(Block * block)
 	close(fd);
 }
 
-Block *block_alloc()
+struct block *block_alloc()
 {
-	Block *block = malloc(sizeof(Block));
+	struct block *block = malloc(sizeof(struct block));
 	block->size = 0;
 	block->next = NULL;
 	block->buffer = NULL;
@@ -78,9 +78,9 @@ Block *block_alloc()
 	return block;
 }
 
-Block *block_from_buffer(unsigned char *buffer, int readed_bytes)
+struct block *block_from_buffer(unsigned char *buffer, int readed_bytes)
 {
-	Block *block;
+	struct block *block;
 
 	block = block_alloc();
 	block->buffer = buffer;
@@ -90,15 +90,15 @@ Block *block_from_buffer(unsigned char *buffer, int readed_bytes)
 	return block;
 }
 
-BlockList *block_list_alloc()
+struct block_list *block_list_alloc()
 {
-	BlockList *list;
-	list = malloc(sizeof(BlockList));
+	struct block_list *list;
+	list = malloc(sizeof(struct block_list));
 	list->size = 0;
 	return list;
 }
 
-void block_list_add(BlockList * list, Block *block)
+void block_list_add(struct block_list *list, struct block *block)
 {
 	if (list->size == 0) {
 		list->head = block;
