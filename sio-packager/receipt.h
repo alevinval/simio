@@ -19,7 +19,7 @@ void
 create_receipt(struct receipt *receipt, unsigned char *path,
 	       unsigned int blk_size);
 
-void unpack_receipt(struct receipt *receipt, int skip_integrity_flag);
+void unpack_receipt(struct receipt *receipt, int skip_integrity);
 void store_receipt(struct receipt *receipt);
 void fetch_receipt(struct receipt *receipt);
 

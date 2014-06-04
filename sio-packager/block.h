@@ -9,13 +9,17 @@ struct block {
 	unsigned char *buffer;
 	int size;
 	char corrupted;
-	void *next;
+};
+
+struct block_node {
+	struct block *block;
+	struct block_node *next;
 };
 
 struct block_list {
 	int size;
-	struct block *head;
-	struct block *tail;
+	struct block_node *head;
+	struct block_node *tail;
 };
 
 int check_block_integrity(struct block *block);
@@ -30,5 +34,6 @@ struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
 
 struct block_list *block_list_alloc();
 void block_list_add(struct block_list *list, struct block *block);
+struct block_list *copy_block_list(struct block_list *list);
 
 #endif /** BLOCK_H */
