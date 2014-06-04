@@ -22,5 +22,6 @@ create_receipt(struct receipt *receipt, unsigned char *path,
 void unpack_receipt(struct receipt *receipt, int skip_integrity);
 void store_receipt(struct receipt *receipt);
 void fetch_receipt(struct receipt *receipt);
+void free_receipt_blocks(struct receipt *receipt);
 
 #endif /** RECEIPT_H */

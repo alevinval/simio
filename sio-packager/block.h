@@ -35,5 +35,6 @@ struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
 struct block_list *block_list_alloc();
 void block_list_add(struct block_list *list, struct block *block);
 struct block_list *copy_block_list(struct block_list *list);
+void free_block_list(struct block_list *list);
 
 #endif /** BLOCK_H */

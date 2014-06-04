@@ -11,6 +11,7 @@ void pack(char *file_path, unsigned int block_size)
 	package_prepare();
 	create_receipt(&receipt, (unsigned char *)file_path, block_size);
 	store_receipt(&receipt);
+	free_receipt(&receipt);
 }
 
 void unpack(char *file_path, int flag_skip_integrity)
@@ -20,6 +21,7 @@ void unpack(char *file_path, int flag_skip_integrity)
 	package_prepare();
 	fetch_receipt(&receipt);
 	unpack_receipt(&receipt, flag_skip_integrity);
+	free_receipt(&receipt);
 }
 
 int main(int argc, char *argv[])

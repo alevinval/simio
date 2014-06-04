@@ -12,7 +12,7 @@
 
 #include "block-recover.h"
 
-void build_parity(struct receipt *receipt)
+struct block *build_global_parity(struct block_list *blocks, int block_size)
 {
 	// Global parity atm
 	int i;
@@ -22,125 +22,31 @@ void build_parity(struct receipt *receipt)
 	unsigned char *block_buffer;
 	unsigned char *parity_buffer;
 
-	block_buffer = calloc(1, sizeof(unsigned char) * receipt->block_size);
-	parity_buffer = calloc(1, sizeof(unsigned char) * receipt->block_size);
+	block_buffer = calloc(1, sizeof(unsigned char) * block_size);
+	parity_buffer = calloc(1, sizeof(unsigned char) * block_size);
 
-	// Load first block in parity buffer.
-	node = receipt->blocks->head;
-	block = node->block;
+	// Load first block in parity buffer
+	block = blocks->head->block;
 	block->buffer = block_buffer;
 	fetch_block_data(block);
 	memcpy(parity_buffer, block->buffer, block->size);
 
-	// Start block XORing for global parity
-	for (node = node->next; node; node = node->next) {
+	node = blocks->head->next;
+	for (; node; node = node->next) {
 		block = node->block;
 		block->buffer = block_buffer;
 		fetch_block_data(block);
 		for (i = 0; i < block->size; i++)
 			parity_buffer[i] = block->buffer[i] ^ parity_buffer[i];
 	}
-
-	receipt->parities_num++;
-	parity = block_from_buffer(parity_buffer, receipt->block_size);
-	block_list_add(receipt->parities, parity);
-	store_block(parity);
+	parity = block_from_buffer(parity_buffer, block_size);
 
 	free(block_buffer);
-	free(parity_buffer);
-}
-
-struct block_list *retrieve_uncorrupted_blocks(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	for (node = receipt->blocks->head; node; node = node->next) {
-		block = node->block;
-		if (!block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-struct block_list *retrieve_corrupted_blocks(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	node = receipt->blocks->head;
-	for (; node; node = node->next) {
-		block = node->block;
-		if (block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-struct block_list *retrieve_corrupted_parities(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	node = receipt->parities->head;
-	for (; node; node = node->next) {
-		block = node->block;
-		if (block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-int fix_one_corrupted_block(struct block_list *blocks, struct block *parity)
-{
-	struct block *recovered_block;
-
-	parity->buffer = malloc(sizeof(unsigned char) * parity->size);
-	fetch_block_data(parity);
-
-	recovered_block = recover_block_from_parity(blocks, parity);
-	store_block(recovered_block);
-
-	free(recovered_block->buffer);
-	free(recovered_block);
-	free(parity->buffer);
-}
-
-int fix_corrupted_receipt(struct receipt *receipt)
-{
-	struct block_list *sane_blocks;
-	struct block_list *corrupted_blocks;
-	struct block_list *corrupted_parities;
-	struct block_node *node;
-
-	sane_blocks = retrieve_uncorrupted_blocks(receipt);
-	corrupted_blocks = retrieve_corrupted_blocks(receipt);
-	corrupted_parities = retrieve_corrupted_parities(receipt);
-
-	if (corrupted_parities->size == 1) {
-		build_parity(receipt);
-	}
-
-	if (corrupted_blocks->size == 1) {
-		fix_one_corrupted_block(sane_blocks,
-					receipt->parities->head->block);
-	}
-
-	return 1;
+	return parity;
 }
 
 int check_receipt_integrity(struct receipt *receipt)
 {
-	struct block_list *list;
 	struct block_list *corrupted_blocks;
 	struct block_node *node;
 	struct block *block;
@@ -194,13 +100,10 @@ void recover_original_file(struct receipt *receipt)
 	struct block *block;
 
 	fd = open_create_file(receipt->name);
-
-	if (fd == -1)
-		die("recover_original_file: cannot create the original file");
-
 	block_buffer = malloc(sizeof(unsigned char) * receipt->block_size);
 
-	for (node = receipt->blocks->head; node; node = node->next) {
+	node = receipt->blocks->head;
+	for (; node; node = node->next) {
 		block = node->block;
 		block->buffer = block_buffer;
 		fetch_block_data(block);
@@ -316,6 +219,13 @@ void build_receipt(struct receipt *receipt)
 		store_block(block);
 	}
 
+	/* Build global parity */
+	block = build_global_parity(receipt->blocks, receipt->block_size);
+	block_list_add(receipt->parities, block);
+	receipt->parities_num++;
+	store_block(block);
+	free(block->buffer);
+
 	free(buffer);
 }
 
@@ -325,8 +235,7 @@ create_receipt(struct receipt *receipt,
 {
 	set_receipt_header(receipt, file_path, block_size);
 	build_receipt(receipt);
-	set_receipt_hash(receipt);
-	build_parity(receipt);
+	//set_receipt_hash(receipt);    
 }
 
 void unpack_receipt(struct receipt *receipt, int skip_integrity)
@@ -360,4 +269,22 @@ void fetch_receipt(struct receipt *receipt)
 	read_receipt_header(fd, receipt);
 	read_receipt_blocks(fd, receipt);
 	close(fd);
+}
+
+void free_receipt(struct receipt *receipt)
+{
+	struct block_node *node;
+
+	node = receipt->blocks->head;
+	for (; node; node = node->next) {
+		free(node->block);
+	}
+
+	node = receipt->parities->head;
+	for (; node; node = node->next) {
+		free(node->block);
+	}
+
+	free_block_list(receipt->blocks);
+	free_block_list(receipt->parities);
 }

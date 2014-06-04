@@ -105,6 +105,8 @@ void free_block_list(struct block_list *list)
 		free(node);
 		node = tmp;
 	}
+
+	free(list);
 }
 
 struct block_node *block_node(struct block *block)
