@@ -46,7 +46,6 @@ int fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
 	struct block *recovered_block;
 
 	recovered_block = recover_block_from_parity(blocks, parity, block_size);
-	recovered_block->size = block_size;
 	store_block(recovered_block);
 
 	free(recovered_block->buffer);
