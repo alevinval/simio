@@ -11,6 +11,7 @@ struct receipt {
 	int size;
 	int parities_num;
 	int block_size;
+	int last_block_size;
 	struct block_list *blocks;
 	struct block_list *parities;
 };
@@ -23,5 +24,9 @@ void unpack_receipt(struct receipt *receipt, int skip_integrity);
 void store_receipt(struct receipt *receipt);
 void fetch_receipt(struct receipt *receipt);
 void free_receipt_blocks(struct receipt *receipt);
+
+struct block_list *retrieve_uncorrupted_blocks(struct receipt *receipt);
+struct block_list *retrieve_corrupted_blocks(struct receipt *receipt);
+struct block_list *retrieve_corrupted_parities(struct receipt *receipt);
 
 #endif /** RECEIPT_H */

@@ -1,12 +1,14 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "receipt.h"
 #include "block.h"
+#include "block-list.h"
 #include "block-recover.h"
 
 struct block *recover_block_from_parity(struct block_list *blocks,
-					struct block *parity)
+					struct block *parity, int block_size)
 {
 	int i;
 	unsigned char *missing_buffer;
@@ -18,79 +20,33 @@ struct block *recover_block_from_parity(struct block_list *blocks,
 	block_buffer = calloc(1, sizeof(unsigned char) * parity->size);
 	missing_buffer = calloc(1, sizeof(unsigned char) * parity->size);
 
+	parity->buffer = malloc(sizeof(unsigned char) * parity->size);
+	fetch_block_data(parity);
 	memcpy(missing_buffer, parity->buffer, parity->size);
-	for (node = blocks->head; node; node = node->next) {
+
+	node = blocks->head;
+	for (; node; node = node->next) {
+		memset(block_buffer, 0, parity->size);
 		block = node->block;
 		block->buffer = block_buffer;
 		fetch_block_data(block);
-		for (i = 0; i < block->size; i++) {
+		for (i = 0; i < parity->size; i++) {
 			missing_buffer[i] =
 			    block->buffer[i] ^ missing_buffer[i];
 		}
 	}
-	missing_block = block_from_buffer(missing_buffer, parity->size);
 	free(block_buffer);
+	missing_block = block_from_buffer(missing_buffer, block_size);
 	return missing_block;
 }
 
-struct block_list *retrieve_uncorrupted_blocks(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	for (node = receipt->blocks->head; node; node = node->next) {
-		block = node->block;
-		if (!block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-struct block_list *retrieve_corrupted_blocks(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	node = receipt->blocks->head;
-	for (; node; node = node->next) {
-		block = node->block;
-		if (block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-struct block_list *retrieve_corrupted_parities(struct receipt *receipt)
-{
-	struct block_list *list;
-	struct block_node *node;
-	struct block *block;
-
-	list = block_list_alloc();
-	node = receipt->parities->head;
-	for (; node; node = node->next) {
-		block = node->block;
-		if (block->corrupted)
-			block_list_add(list, block);
-	}
-
-	return list;
-}
-
-int fix_one_corrupted_block(struct block_list *blocks, struct block *parity)
+int fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
+			    int block_size)
 {
 	struct block *recovered_block;
 
-	parity->buffer = malloc(sizeof(unsigned char) * parity->size);
-	fetch_block_data(parity);
-
-	recovered_block = recover_block_from_parity(blocks, parity);
+	recovered_block = recover_block_from_parity(blocks, parity, block_size);
+	recovered_block->size = block_size;
 	store_block(recovered_block);
 
 	free(recovered_block->buffer);
@@ -110,12 +66,20 @@ int fix_corrupted_receipt(struct receipt *receipt)
 	corrupted_parities = retrieve_corrupted_parities(receipt);
 
 	if (corrupted_parities->size == 1) {
+		printf("fixing global parity\n");
 		build_global_parity(receipt);
 	}
 
 	if (corrupted_blocks->size == 1) {
-		fix_one_corrupted_block(sane_blocks,
-					receipt->parities->head->block);
+		printf("fixing corrupted block\n");
+		if (corrupted_blocks->tail->block->last)
+			fix_one_corrupted_block(sane_blocks,
+						receipt->parities->head->block,
+						receipt->last_block_size);
+		else
+			fix_one_corrupted_block(sane_blocks,
+						receipt->parities->head->block,
+						receipt->block_size);
 	}
 
 	free_block_list(sane_blocks);

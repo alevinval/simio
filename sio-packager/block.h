@@ -7,19 +7,9 @@ struct block {
 	unsigned char sha2[32];
 	unsigned char name[SHA2_STRING];
 	unsigned char *buffer;
-	int size;
 	char corrupted;
-};
-
-struct block_node {
-	struct block *block;
-	struct block_node *next;
-};
-
-struct block_list {
+	char last;
 	int size;
-	struct block_node *head;
-	struct block_node *tail;
 };
 
 int check_block_integrity(struct block *block);
