@@ -83,8 +83,3 @@ struct block *block_from_buffer(unsigned char *buffer, int readed_bytes)
 	set_block_hash(block);
 	return block;
 }
-
-void free_block(struct block *block)
-{
-	free(block);
-}

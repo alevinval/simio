@@ -5,7 +5,7 @@ SOURCES = *.c
 HEADERS = *.h
 
 all:
-	$(CC) $(SOURCES) -o sio-packager
+	$(CC) -Wall -Wextra -pedantic -ansi -Werror $(SOURCES) -o sio-packager
 
 clean:
 	rm -f sio-packager *.o *.out

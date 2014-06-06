@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "util.h"
 #include "block-list.h"
 
 struct block_list *block_list_alloc()

@@ -5,12 +5,11 @@
 
 #include "sha256.h"
 #include "receipt.h"
-#include "block.h"
 #include "block-list.h"
 #include "block-recover.h"
 #include "dirnav.h"
-#include "dir.h"
 #include "util.h"
+#include "receipt-parities.h"
 
 struct block_list *retrieve_uncorrupted_blocks(struct receipt *receipt)
 {
