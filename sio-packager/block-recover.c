@@ -3,9 +3,9 @@
 #include <stdio.h>
 
 #include "receipt.h"
-#include "block.h"
 #include "block-list.h"
 #include "block-recover.h"
+#include "receipt-parities.h"
 
 struct block *recover_block_from_parity(struct block_list *blocks,
 					struct block *parity, int block_size)
@@ -40,7 +40,7 @@ struct block *recover_block_from_parity(struct block_list *blocks,
 	return missing_block;
 }
 
-int fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
+void fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
 			    int block_size)
 {
 	struct block *recovered_block;
@@ -58,7 +58,6 @@ int fix_corrupted_receipt(struct receipt *receipt)
 	struct block_list *sane_blocks;
 	struct block_list *corrupted_blocks;
 	struct block_list *corrupted_parities;
-	struct block_node *node;
 
 	sane_blocks = retrieve_uncorrupted_blocks(receipt);
 	corrupted_blocks = retrieve_corrupted_blocks(receipt);
@@ -66,7 +65,7 @@ int fix_corrupted_receipt(struct receipt *receipt)
 
 	if (corrupted_parities->size == 1) {
 		printf("fixing global parity\n");
-		build_global_parity(receipt);
+		build_global_parity(sane_blocks, receipt->block_size);
 	}
 
 	if (corrupted_blocks->size == 1) {
