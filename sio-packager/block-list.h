@@ -17,9 +17,6 @@ struct block_list {
 struct block_list *block_list_alloc();
 
 void free_block_list(struct block_list *list);
-
 void block_list_add(struct block_list *list, struct block *block);
-
-struct block_list *copy_block_list(struct block_list *list);
 
 #endif /** BLOCK_LIST_H */

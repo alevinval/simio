@@ -41,7 +41,7 @@ struct block *recover_block_from_parity(struct block_list *blocks,
 }
 
 void fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
-			    int block_size)
+			     int block_size)
 {
 	struct block *recovered_block;
 

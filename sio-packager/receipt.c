@@ -77,7 +77,7 @@ int check_receipt_integrity(struct receipt *receipt)
 		block = node->block;
 		block->buffer = buffer;
 		fetch_block_data(block);
-		if (!check_block_integrity(block)) {
+		if (!verify_block_integrity(block)) {
 			block->corrupted = 1;
 			block_list_add(corrupted_blocks, block);
 		}
@@ -88,7 +88,7 @@ int check_receipt_integrity(struct receipt *receipt)
 		block = node->block;
 		block->buffer = buffer;
 		fetch_block_data(block);
-		if (!check_block_integrity(block)) {
+		if (!verify_block_integrity(block)) {
 			block->corrupted = 1;
 			block_list_add(corrupted_blocks, block);
 		}

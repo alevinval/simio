@@ -3,6 +3,18 @@
 #include "util.h"
 #include "block-list.h"
 
+struct block_node *block_node_from_block(struct block *block)
+{
+	struct block_node *node;
+
+	if (!block)
+		die("block_node_from_block: unallocated block\n");
+
+	node = calloc(1, sizeof(struct block_node));
+	node->block = block;
+	return node;
+}
+
 struct block_list *block_list_alloc()
 {
 	return calloc(1, sizeof(struct block_list));
@@ -11,37 +23,31 @@ struct block_list *block_list_alloc()
 void free_block_list(struct block_list *list)
 {
 	struct block_node *node;
-	struct block_node *tmp;
+	struct block_node *next;
+
+	if (!list)
+		die("free_block_list: unallocated list\n");
 
 	node = list->head;
 	while (node) {
-		tmp = node->next;
+		next = node->next;
 		free(node);
-		node = tmp;
+		node = next;
 	}
-
 	free(list);
-}
-
-struct block_node *block_node(struct block *block)
-{
-	struct block_node *node;
-
-	node = calloc(1, sizeof(struct block_node));
-	node->block = block;
-	return node;
 }
 
 void block_list_add(struct block_list *list, struct block *block)
 {
-	if (!list)
-		die("cannot add block to unallocated block_list\n");
+	struct block_node *node;
 
 	if (!block)
-		die("cannot add non-existant block to block_list\n");
+		die("block_list_add: unallocated list\n");
 
-	struct block_node *node = block_node(block);
+	if (!block)
+		die("block_list_add: unallocated block\n");
 
+	node = block_node_from_block(block);
 	if (!list->size) {
 		list->head = node;
 		list->tail = node;
@@ -50,19 +56,4 @@ void block_list_add(struct block_list *list, struct block *block)
 		list->tail = node;
 	}
 	list->size++;
-}
-
-struct block_list *copy_block_list(struct block_list *list)
-{
-	struct block_list *copy;
-	struct block_node *node;
-
-	copy = block_list_alloc();
-
-	node = list->head;
-	while (node) {
-		block_list_add(copy, node->block);
-		node = node->next;
-	}
-	return copy;
 }

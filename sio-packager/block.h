@@ -12,19 +12,13 @@ struct block {
 	int size;
 };
 
-int check_block_integrity(struct block *block);
-void set_block_hash(struct block *block);
-
+struct block *block_alloc();
+struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
 struct block *fetch_block(unsigned char *block_sha2, int block_size);
+
 void fetch_block_data(struct block *block);
 void store_block(struct block *block);
 
-struct block *block_alloc();
-struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
-
-struct block_list *block_list_alloc();
-void block_list_add(struct block_list *list, struct block *block);
-struct block_list *copy_block_list(struct block_list *list);
-void free_block_list(struct block_list *list);
+int verify_block_integrity(struct block *block);
 
 #endif /** BLOCK_H */

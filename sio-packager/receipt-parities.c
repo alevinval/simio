@@ -1,14 +1,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "block.h"
 #include "block-list.h"
 #include "receipt.h"
 #include "receipt-parities.h"
 
 struct block *build_global_parity(struct block_list *blocks, int block_size)
 {
-	// Global parity atm
+	/** Global parity atm */
 	int i;
 	struct block_node *node;
 	struct block *parity;
@@ -19,7 +18,7 @@ struct block *build_global_parity(struct block_list *blocks, int block_size)
 	block_buffer = calloc(1, sizeof(unsigned char) * block_size);
 	parity_buffer = calloc(1, sizeof(unsigned char) * block_size);
 
-	// Load first block in parity buffer
+	/** Load first block in parity buffer */
 	block = blocks->head->block;
 	block->buffer = block_buffer;
 	fetch_block_data(block);
