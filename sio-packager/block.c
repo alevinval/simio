@@ -64,10 +64,10 @@ void fetch_block_data(struct block *block)
 	fd = open_block(block->name);
 	block_size = file_size(fd);
 	if (block_size > block->size) {
-		die("fetching block bigger than block_size on block [%s]\n",
-		    block->name);
+		block->corrupted = 1;
+	} else {
+		block->size = block_size;
 	}
-	block->size = block_size;
 	read(fd, block->buffer, block_size);
 	close(fd);
 }

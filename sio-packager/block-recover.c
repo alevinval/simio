@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "dirnav.h"
 #include "receipt.h"
 #include "block-list.h"
 #include "block-recover.h"
@@ -40,12 +41,15 @@ struct block *recover_block_from_parity(struct block_list *blocks,
 	return missing_block;
 }
 
-void fix_one_corrupted_block(struct block_list *blocks, struct block *parity,
-			     int block_size)
+void fix_one_corrupted_block(struct block_list *blocks,
+			     struct block_list *corrupted_blocks,
+			     struct block *parity, int block_size)
 {
 	struct block *recovered_block;
 
 	recovered_block = recover_block_from_parity(blocks, parity, block_size);
+	corrupted_blocks->head->block->size = recovered_block->size;
+	delete_block(recovered_block->name);
 	store_block(recovered_block);
 
 	free(recovered_block->buffer);
@@ -72,10 +76,12 @@ int fix_corrupted_receipt(struct receipt *receipt)
 		printf("fixing corrupted block\n");
 		if (corrupted_blocks->tail->block->last)
 			fix_one_corrupted_block(sane_blocks,
+						corrupted_blocks,
 						receipt->parities->head->block,
 						receipt->last_block_size);
 		else
 			fix_one_corrupted_block(sane_blocks,
+						corrupted_blocks,
 						receipt->parities->head->block,
 						receipt->block_size);
 	}

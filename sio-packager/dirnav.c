@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 #include "util.h"
 #include "dirnav.h"
@@ -38,6 +39,13 @@ int open_block(unsigned char *name)
 		die("open_block: cannot open requested block\n[%s]\n", name);
 
 	return fd;
+}
+
+void delete_block(unsigned char *name)
+{
+	mv_package_blocks();
+	unlink((char *)name);
+	mv_parent();
 }
 
 int open_create_block(unsigned char *name)
@@ -95,6 +103,20 @@ int open_file(unsigned char *name)
 		die("open_file: cannot open requested file \"%s\"\n", name);
 
 	return fd;
+}
+
+void delete_file(unsigned char *file_name)
+{
+	mv_parent();
+	unlink((char *)file_name);
+	mv_package_root();
+}
+
+void rename_file(unsigned char *old_name, unsigned char *new_name)
+{
+	mv_parent();
+	rename((char *)old_name, (char *)new_name);
+	mv_package_root();
 }
 
 int open_create_file(unsigned char *name)

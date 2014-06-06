@@ -112,11 +112,15 @@ int check_receipt_integrity(struct receipt *receipt)
 void recover_original_file(struct receipt *receipt)
 {
 	int fd;
+	unsigned char tmp_name[SHA2_STRING];
 	unsigned char *block_buffer;
 	struct block_node *node;
 	struct block *block;
 
-	fd = open_create_file(receipt->name);
+	strcpy((char *)tmp_name, (char *)receipt->name);
+	strcat((char *)tmp_name, ".tmp");
+
+	fd = open_create_file(tmp_name);
 	block_buffer = malloc(sizeof(unsigned char) * receipt->block_size);
 
 	node = receipt->blocks->head;
@@ -129,6 +133,10 @@ void recover_original_file(struct receipt *receipt)
 	}
 
 	close(fd);
+
+	delete_file(receipt->name);
+	rename_file(tmp_name, receipt->name);
+
 	free(block_buffer);
 }
 
