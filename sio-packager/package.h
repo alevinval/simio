@@ -1,10 +1,17 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-int package_create();
+class Package {
+public:
+    Package();
+    ~Package();
 
-void package_initialize();
+    int create ();
 
-void package_prepare();
+    void initialize ();
 
-#endif /**  PACKAGE_H */
+    void prepare ();
+};
+
+
+#endif // PACKAGE_H

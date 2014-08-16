@@ -3,22 +3,33 @@
 
 #include "sha256.h"
 
-struct block {
+class Block {
+private:
 	unsigned char sha2[32];
 	unsigned char name[SHA2_STRING];
-	unsigned char *buffer;
-	char corrupted;
-	char last;
+	bool corrupted;
+	bool last;
 	int size;
+	void updateHash();
+public:
+	unsigned char *buffer;
+	Block();
+	Block(unsigned char *buffer, int size);
+	~Block();
+	bool isCorrupted();
+	bool isLast();
+	void setLast();
+	int getSize();
+	void setSize(int size);
+	void setBuffer(unsigned char *buffer);
+	void setCorrupted();
+	unsigned char *getBuffer();
+	unsigned char *getSha2();
+	unsigned char *getName();	
+	void store();
+	void retrieve(unsigned char *block_sha2, int block_size);
+	void fetchBlockData();
+	bool checkIntegrity();
 };
 
-struct block *block_alloc();
-struct block *block_from_buffer(unsigned char *buffer, int readed_bytes);
-struct block *fetch_block(unsigned char *block_sha2, int block_size);
-
-void fetch_block_data(struct block *block);
-void store_block(struct block *block);
-
-int verify_block_integrity(struct block *block);
-
-#endif /** BLOCK_H */
+#endif //BLOCK_H

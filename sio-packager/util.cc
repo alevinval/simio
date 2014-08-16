@@ -1,23 +1,27 @@
-#include <errno.h>
+#ifdef _WIN32
+#include <io.h>
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
+#include <cstdio>
+
 #include <fcntl.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "util.h"
 
 long file_size(int fd)
 {
-	off_t fsize;
+	long fsize;
 	fsize = lseek(fd, 0, SEEK_END);
 	lseek(fd, 0, SEEK_SET);
 	return fsize;
 }
 
 /**
-    Reads a block of data from a file, puts the data in a buffer
+Reads a block of data from a file, puts the data in a buffer
 */
 int fill_buffer(int fd, unsigned char *buffer, int blk_size)
 {

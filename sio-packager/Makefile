@@ -1,11 +1,11 @@
-CC=gcc 
+C=g++ 
 CFLAGS=-Wall
 
-SOURCES = *.c
+SOURCES = *.cc *.cpp
 HEADERS = *.h
 
 all:
-	$(CC) -Wall -Wextra -pedantic -ansi -Werror $(SOURCES) -o sio-packager
+	g++ -Wall -Wextra -pedantic -ansi -Werror $(SOURCES) -o sio-packager
 
 clean:
 	rm -f sio-packager *.o *.out

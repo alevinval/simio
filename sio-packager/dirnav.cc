@@ -1,7 +1,5 @@
-#include <unistd.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "util.h"
 #include "dirnav.h"
@@ -32,7 +30,7 @@ int open_block(unsigned char *name)
 	int fd;
 
 	mv_package_blocks();
-	fd = open((char *)name, O_RDONLY);
+	fd = open((char *)name, O_RDONLY | O_BINARY);
 	mv_parent();
 
 	if (fd < 0)
@@ -53,26 +51,28 @@ int open_create_block(unsigned char *name)
 	int fd;
 
 	mv_package_blocks();
-	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT | O_BINARY, 0666);
 	mv_parent();
 
 	if (fd < 0)
 		die("open_create_block: cannot open requested block\n[%s]\n",
-		    name);
+		name);
 	return fd;
 }
 
-int open_receipt(unsigned char *name)
+int
+open_receipt(unsigned char *name)
 {
 	int fd;
 
 	mv_package_receipts();
-	fd = open((char *)name, O_RDONLY);
+		
+	fd = open((char *)name, O_RDONLY | O_BINARY);
 	mv_parent();
 
 	if (fd < 0)
 		die("open_receipt: cannot open requested receipt \"%s\"\n",
-		    name);
+		name);
 
 	return fd;
 }
@@ -82,7 +82,7 @@ int open_create_receipt(unsigned char *name)
 	int fd;
 
 	mv_package_receipts();
-	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT | O_BINARY, 0666);
 	mv_parent();
 
 	if (fd < 0)
@@ -96,7 +96,7 @@ int open_file(unsigned char *name)
 	int fd;
 
 	mv_parent();
-	fd = open((char *)name, READ_PERM);
+	fd = open((char *)name, READ_PERM | O_BINARY);
 	mv_package_root();
 
 	if (fd < 0)
@@ -124,12 +124,12 @@ int open_create_file(unsigned char *name)
 	int fd;
 
 	mv_parent();
-	fd = open((char *)name, O_RDWR | O_CREAT, 0666);
+	fd = open((char *)name, O_RDWR | O_CREAT | O_BINARY, 0666);
 	mv_package_root();
 
 	if (fd < 0)
 		die("open_create_file: cannot create requested file \"%s\"\n",
-		    name);
+		name);
 
 	return fd;
 }

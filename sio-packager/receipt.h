@@ -1,31 +1,50 @@
 #ifndef RECEIPT_H
 #define RECEIPT_H
 
+#include <vector>
 #include "dir.h"
+#include "block.h"
 
-struct receipt {
-	unsigned char sha2[32];
-	unsigned char name[FNAME_LEN];
+class Receipt {
+    unsigned char sha2[32];
+    unsigned char name[FNAME_LEN];
 	int size;
-	int parities_num;
 	int block_size;
+	int parities_num;
 	int last_block_size;
-	struct block_list *blocks;
-	struct block_list *parities;
+    std::vector<Block*> *blocks;
+    std::vector<Block*> *parities;
+
+	void setHeader(unsigned char *file_path, int block_size);
+	void setHash();
+	
+	void storeBlocks();
+	void storeParities();
+	void storeReceipt();
+
+	void fetchReceipt(int fd);
+	void fetchBlocks(int fd);
+
+	void recoverOriginalFile();
+	bool checkIntegrity();
+	bool fixIntegrity();
+
+	Block* buildGlobalParity();
+	void buildParities();
+
+
+	std::vector<Block*> *getCorruptedBlocks();
+	std::vector<Block*> *getCorruptedParities();
+	std::vector<Block*> *getUncorruptedBlocks();
+	Block * recoverBlockFromParity(std::vector<Block *> *blocks, Block *parity, int block_size);
+	void fixOneCorruptedBlock(std::vector<Block*> *sane_blocks, std::vector<Block*> *corrupted_blocks, Block *parity, int block_size);
+public:
+	~Receipt();
+	Receipt(unsigned char *receipt_name);
+	Receipt(unsigned char *file_path, int block_size);
+	void pack();
+	void unpack(bool skip_integrity);
 };
 
-void
-create_receipt(struct receipt *receipt, unsigned char *path,
-	       unsigned int blk_size);
 
-void unpack_receipt(struct receipt *receipt, int skip_integrity);
-void store_receipt(struct receipt *receipt);
-void fetch_receipt(struct receipt *receipt);
-void free_receipt_blocks(struct receipt *receipt);
-void free_receipt(struct receipt *receipt);
-
-struct block_list *retrieve_uncorrupted_blocks(struct receipt *receipt);
-struct block_list *retrieve_corrupted_blocks(struct receipt *receipt);
-struct block_list *retrieve_corrupted_parities(struct receipt *receipt);
-
-#endif /** RECEIPT_H */
+#endif //RECEIPT_H
