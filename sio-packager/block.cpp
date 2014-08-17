@@ -87,13 +87,13 @@ Block::updateHash()
 }
 
 void
-Block::setBuffer(unsigned char *buffer)
+Block::set_buffer(unsigned char *buffer)
 {
 	this->buffer = buffer;
 }
 
 unsigned char *
-Block::getBuffer()
+Block::get_buffer()
 {
 	return buffer;
 }
