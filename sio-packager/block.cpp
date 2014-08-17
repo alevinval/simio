@@ -46,7 +46,7 @@ Block::~Block()
 }
 
 void
-Block::fetchBlockData()
+Block::fetch()
 {
 	int fd;
 	int block_size;
@@ -56,7 +56,7 @@ Block::fetchBlockData()
 
 	fd = open_block(name);
 	block_size = file_size(fd);
-	if (block_size > size) {
+	if (block_size != size) {
 		setCorrupted();
 	} else {
 		size = block_size;

@@ -20,7 +20,8 @@ public:
 	~Block();
 	void from_buffer(unsigned char *buffer, int size);
 	void from_file(unsigned char *block_sha2, int block_size);
-	
+	void fetch();
+
 	void set_buffer(unsigned char *buffer);
 	unsigned char *get_buffer();
 
@@ -34,7 +35,7 @@ public:
 	unsigned char *getSha2();
 	unsigned char *getName();	
 	void store();
-	void fetchBlockData();
+	
 	bool checkIntegrity();
 };
 

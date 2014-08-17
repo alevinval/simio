@@ -172,14 +172,14 @@ Receipt::buildGlobalParity()
 
 	block = blocks->begin();
 	(*block)->set_buffer(block_buffer);
-	(*block)->fetchBlockData();
+	(*block)->fetch();
 
 	memcpy(parity_buffer, (*block)->get_buffer(), (*block)->getSize());
 	block++;
 	for (; block != blocks->end(); block++) {
 		memset(block_buffer, 0, block_size);
 		(*block)->set_buffer(block_buffer);
-		(*block)->fetchBlockData();
+		(*block)->fetch();
 		for (i = 0; i < block_size; i++)
 			parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
 	}
@@ -213,14 +213,14 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 	missing_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
 	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());
 	parity->set_buffer(parity_buffer);
-	parity->fetchBlockData();
+	parity->fetch();
 	memcpy(missing_buffer, parity->get_buffer(), parity->getSize());
 
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
 		memset(block_buffer, 0, parity->getSize());
 		(*block)->set_buffer(block_buffer);
-		(*block)->fetchBlockData();
+		(*block)->fetch();
 		for (i = 0; i < parity->getSize(); i++) {
 			missing_buffer[i] =
 				block_buffer[i] ^ missing_buffer[i];
@@ -310,7 +310,7 @@ Receipt::recoverOriginalFile() {
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
 		(*block)->set_buffer(block_buffer);
-		(*block)->fetchBlockData();
+		(*block)->fetch();
 		write(fd, block_buffer, (*block)->getSize());
 		(*block)->set_buffer(NULL);
 	}
@@ -336,7 +336,7 @@ bool Receipt::checkIntegrity()
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
 		(*block)->set_buffer(buffer);
-		(*block)->fetchBlockData();
+		(*block)->fetch();
 		if (!(*block)->checkIntegrity()) {
 			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();
@@ -347,7 +347,7 @@ bool Receipt::checkIntegrity()
 	block = parities->begin();
 	for (; block != parities->end(); block++) {
 		(*block)->set_buffer(buffer);
-		(*block)->fetchBlockData();
+		(*block)->fetch();
 		if (!(*block)->checkIntegrity()) {
 			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();
