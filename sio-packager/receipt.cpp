@@ -6,8 +6,8 @@
 #include "util.h"
 
 
-Receipt::Receipt(unsigned char *receipt_name) {	
-	int fd;	
+Receipt::Receipt(unsigned char *receipt_name) {
+	int fd;
 
 	blocks = new std::vector<Block*>();
 	parities = new std::vector<Block*>();
@@ -101,12 +101,12 @@ Receipt::storeReceipt()
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
 		write(fd, (*block)->getSha2(), 32);
-	}			
-	
+	}
+
 	block = parities->begin();
 	for (; block != parities->end(); block++) {
 		write(fd, (*block)->getSha2(), 32);
-	}	
+	}
 
 	close(fd);
 }
@@ -132,11 +132,11 @@ Receipt::fetchBlocks(int fd)
 	for (i = 0; i < size; i++) {
 		read(fd, &block_sha2, 32);
 		block = new Block();
-		block->from_file(block_sha2, block_size);		
+		block->from_file(block_sha2, block_size);
 		blocks->push_back(block);
 	}
 	blocks->back()->setLast();
-	
+
 	for (i = 0; i < parities_num; i++) {
 		read(fd, &block_sha2, 32);
 		block = new Block();
@@ -148,14 +148,14 @@ Receipt::fetchBlocks(int fd)
 
 void
 Receipt::pack()
-{	
+{
 	storeBlocks();
-	buildParities();	
-	storeReceipt();	
+	buildParities();
+	storeReceipt();
 	setHash();
 }
 
-Block * 
+Block *
 Receipt::buildGlobalParity()
 {
 	int i;
@@ -186,15 +186,15 @@ Receipt::buildGlobalParity()
 	parity = new Block();
 	parity->from_buffer(parity_buffer, block_size);
 	free(block_buffer);
-	return parity;		
+	return parity;
 }
 
 void Receipt::buildParities()
-{	
+{
 	Block *block = buildGlobalParity();
 	parities->push_back(block);
-	parities_num++;	
-	block->store();	
+	parities_num++;
+	block->store();
 	free(block->get_buffer());
 }
 
@@ -205,13 +205,13 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 	unsigned char *missing_buffer;
 	unsigned char *block_buffer;
 	unsigned char *parity_buffer;
-	
+
 	std::vector<Block*>::iterator block;
 	Block *missing_block;
 
 	block_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
 	missing_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
-	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());	
+	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());
 	parity->set_buffer(parity_buffer);
 	parity->fetchBlockData();
 	memcpy(missing_buffer, parity->get_buffer(), parity->getSize());
@@ -220,7 +220,7 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 	for (; block != blocks->end(); block++) {
 		memset(block_buffer, 0, parity->getSize());
 		(*block)->set_buffer(block_buffer);
-		(*block)->fetchBlockData();		
+		(*block)->fetchBlockData();
 		for (i = 0; i < parity->getSize(); i++) {
 			missing_buffer[i] =
 				block_buffer[i] ^ missing_buffer[i];
@@ -254,9 +254,9 @@ bool Receipt::fixIntegrity()
 	std::vector<Block*> *corrupted_blocks;
 	std::vector<Block*> *corrupted_parities;
 
-	sane_blocks = getUncorruptedBlocks();
-	corrupted_blocks = getCorruptedBlocks();
-	corrupted_parities = getCorruptedParities();
+	sane_blocks = get_blocks_where_corruption(blocks, false);
+	corrupted_blocks = get_blocks_where_corruption(blocks, true);
+	corrupted_parities = get_blocks_where_corruption(parities, true);
 
 	if (corrupted_parities->size() == 1) {
 		printf("fixing global parity\n");
@@ -279,15 +279,16 @@ bool Receipt::fixIntegrity()
 void
 Receipt::unpack(bool skip_integrity)
 {
-	if (skip_integrity) {		
+	if (skip_integrity) {
 		recoverOriginalFile();
-	} else {		
-		if (!checkIntegrity()) {			
+	}
+	else {
+		if (!checkIntegrity()) {
 			if (fixIntegrity()) {
 				recoverOriginalFile();
 			}
 		}
-		else {			
+		else {
 			recoverOriginalFile();
 		}
 	}
@@ -304,10 +305,10 @@ Receipt::recoverOriginalFile() {
 	strcat((char *)tmp_name, ".tmp");
 
 	fd = open_create_file(tmp_name);
-	block_buffer = (unsigned char *) malloc(sizeof(unsigned char)* block_size);
+	block_buffer = (unsigned char *)malloc(sizeof(unsigned char)* block_size);
 
 	block = blocks->begin();
-	for (; block != blocks->end(); block++) {		
+	for (; block != blocks->end(); block++) {
 		(*block)->set_buffer(block_buffer);
 		(*block)->fetchBlockData();
 		write(fd, block_buffer, (*block)->getSize());
@@ -319,7 +320,7 @@ Receipt::recoverOriginalFile() {
 	delete_file(name);
 	rename_file(tmp_name, name);
 
-	free(block_buffer);	
+	free(block_buffer);
 }
 
 bool Receipt::checkIntegrity()
@@ -330,14 +331,14 @@ bool Receipt::checkIntegrity()
 	bool ret;
 
 	corrupted_blocks = new std::vector<Block*>();
-	buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* block_size);	
+	buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* block_size);
 
-	block = blocks->begin();	
+	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
 		(*block)->set_buffer(buffer);
 		(*block)->fetchBlockData();
-		if ( !(*block)->checkIntegrity() ) {					
-			corrupted_blocks->push_back((*block));	
+		if (!(*block)->checkIntegrity()) {
+			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();
 		}
 	}
@@ -347,7 +348,7 @@ bool Receipt::checkIntegrity()
 	for (; block != parities->end(); block++) {
 		(*block)->set_buffer(buffer);
 		(*block)->fetchBlockData();
-		if (!(*block)->checkIntegrity()) {			
+		if (!(*block)->checkIntegrity()) {
 			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();
 		}
@@ -361,48 +362,25 @@ bool Receipt::checkIntegrity()
 		ret = false;
 	else
 		ret = true;
-	
+
 	delete corrupted_blocks;
 	free(buffer);
 
 	return ret;
 }
 
-std::vector<Block *>* Receipt::getCorruptedBlocks()
+std::vector<Block*> *
+Receipt::get_blocks_where_corruption(std::vector<Block*> *blocks, bool condition)
 {
-	std::vector<Block *>::iterator block;
-	std::vector<Block *> *corrupted_blocks = new std::vector<Block *>();
-	block = blocks->begin();
-	for (; block != blocks->end(); block++) {		
-		if ((*block)->isCorrupted())
-			corrupted_blocks->push_back((*block));
-	}
+	std::vector<Block*>::iterator block;
+	std::vector<Block*> *filtered_blocks = new std::vector<Block*>();
 
-	return corrupted_blocks;
-}
-
-std::vector<Block *>* Receipt::getCorruptedParities()
-{
-	std::vector<Block *>::iterator block;
-	std::vector<Block *> *corrupted_blocks = new std::vector<Block *>();
-	block = parities->begin();
-	for (; block != parities->end(); block++) {
-		if ((*block)->isCorrupted())
-			corrupted_blocks->push_back((*block));
-	}
-
-	return corrupted_blocks;
-}
-
-std::vector<Block *>* Receipt::getUncorruptedBlocks()
-{
-	std::vector<Block *>::iterator block;
-	std::vector<Block *> *corrupted_blocks = new std::vector<Block *>();
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
-		if (!(*block)->isCorrupted())
-			corrupted_blocks->push_back((*block));
-	}
+		if ((*block)->isCorrupted() == condition) {
+			filtered_blocks->push_back((*block));
+		}			
+	}		
 
-	return corrupted_blocks;
+	return filtered_blocks;
 }

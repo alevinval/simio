@@ -32,10 +32,8 @@ class Receipt {
 	Block* buildGlobalParity();
 	void buildParities();
 
+	std::vector<Block*> *get_blocks_where_corruption(std::vector<Block*> *blocks, bool condition);
 
-	std::vector<Block*> *getCorruptedBlocks();
-	std::vector<Block*> *getCorruptedParities();
-	std::vector<Block*> *getUncorruptedBlocks();
 	Block * recoverBlockFromParity(std::vector<Block *> *blocks, Block *parity, int block_size);
 	void fixOneCorruptedBlock(std::vector<Block*> *sane_blocks, std::vector<Block*> *corrupted_blocks, Block *parity, int block_size);
 public:
