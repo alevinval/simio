@@ -6,7 +6,9 @@
 #include <direct.h>
 #else
 #define O_BINARY 0
+
 #include <unistd.h>
+
 #endif
 
 #include <stdarg.h>

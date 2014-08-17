@@ -18,7 +18,7 @@ int open_create_block (unsigned char *block_name);
 
 void delete_block (unsigned char *block_name);
 
-int open_receipt(unsigned char *receipt_name);
+int open_receipt (unsigned char *receipt_name);
 
 int open_create_receipt (unsigned char *receipt_name);
 

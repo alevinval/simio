@@ -1,10 +1,12 @@
 #ifndef PACKAGE_H
 #define PACKAGE_H
 
-class Package {
+class Package
+{
 public:
-    Package();
-    ~Package();
+    Package ();
+
+    ~Package ();
 
     int create ();
 
