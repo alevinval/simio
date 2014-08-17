@@ -46,13 +46,15 @@ Block::~Block()
 }
 
 void
-Block::fetch()
+Block::fetch(unsigned char *buffer)
 {
 	int fd;
 	int block_size;
 
 	if (!buffer)
 		die("fetch_block_data: unallocated buffer\n");
+
+	set_buffer(buffer);
 
 	fd = open_block(name);
 	block_size = file_size(fd);

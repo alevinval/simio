@@ -172,15 +172,13 @@ Receipt::buildGlobalParity()
 	/** Build Global Parity */
 
 	block = blocks->begin();
-	(*block)->set_buffer(block_buffer);
-	(*block)->fetch();
+	(*block)->fetch(block_buffer);
 
 	memcpy(parity_buffer, (*block)->get_buffer(), (*block)->getSize());
 	block++;
 	for (; block != blocks->end(); block++) {
-		memset(block_buffer, 0, block_size);
-		(*block)->set_buffer(block_buffer);
-		(*block)->fetch();
+		memset(block_buffer, 0, block_size);		
+		(*block)->fetch(block_buffer);
 		for (i = 0; i < block_size; i++)
 			parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
 	}
@@ -212,16 +210,14 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 
 	block_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
 	missing_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
-	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());
-	parity->set_buffer(parity_buffer);
-	parity->fetch();
+	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());	
+	parity->fetch(parity_buffer);
 	memcpy(missing_buffer, parity->get_buffer(), parity->getSize());
 
 	block = blocks->begin();
 	for (; block != blocks->end(); block++) {
-		memset(block_buffer, 0, parity->getSize());
-		(*block)->set_buffer(block_buffer);
-		(*block)->fetch();
+		memset(block_buffer, 0, parity->getSize());		
+		(*block)->fetch(block_buffer);
 		for (i = 0; i < parity->getSize(); i++) {
 			missing_buffer[i] =
 				block_buffer[i] ^ missing_buffer[i];
@@ -309,9 +305,8 @@ Receipt::recoverOriginalFile() {
 	block_buffer = (unsigned char *)malloc(sizeof(unsigned char)* block_size);
 
 	block = blocks->begin();
-	for (; block != blocks->end(); block++) {
-		(*block)->set_buffer(block_buffer);
-		(*block)->fetch();
+	for (; block != blocks->end(); block++) {		
+		(*block)->fetch(block_buffer);
 		write(fd, block_buffer, (*block)->getSize());
 		(*block)->set_buffer(NULL);
 	}
@@ -335,9 +330,8 @@ bool Receipt::checkIntegrity()
 	buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* block_size);
 
 	block = blocks->begin();
-	for (; block != blocks->end(); block++) {
-		(*block)->set_buffer(buffer);
-		(*block)->fetch();
+	for (; block != blocks->end(); block++) {		
+		(*block)->fetch(buffer);
 		if (!(*block)->checkIntegrity()) {
 			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();
@@ -346,9 +340,8 @@ bool Receipt::checkIntegrity()
 
 
 	block = parities->begin();
-	for (; block != parities->end(); block++) {
-		(*block)->set_buffer(buffer);
-		(*block)->fetch();
+	for (; block != parities->end(); block++) {		
+		(*block)->fetch(buffer);
 		if (!(*block)->checkIntegrity()) {
 			corrupted_blocks->push_back((*block));
 			(*block)->setCorrupted();

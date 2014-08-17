@@ -20,7 +20,7 @@ public:
 	~Block();
 	void from_buffer(unsigned char *buffer, int size);
 	void from_file(unsigned char *block_sha2, int block_size);
-	void fetch();
+	void fetch(unsigned char *buffer);
 
 	void set_buffer(unsigned char *buffer);
 	unsigned char *get_buffer();
