@@ -174,7 +174,7 @@ Receipt::buildGlobalParity()
 	block = blocks->begin();
 	(*block)->fetch(block_buffer);
 
-	memcpy(parity_buffer, (*block)->get_buffer(), (*block)->getSize());
+	memcpy(parity_buffer, block_buffer, (*block)->getSize());
 	block++;
 	for (; block != blocks->end(); block++) {
 		memset(block_buffer, 0, block_size);		
@@ -184,17 +184,23 @@ Receipt::buildGlobalParity()
 	}
 	parity = new Block();
 	parity->from_buffer(parity_buffer, block_size);
-	free(block_buffer);
+
+	delete block_buffer;
+
 	return parity;
 }
 
 void Receipt::buildParities()
 {
-	Block *block = buildGlobalParity();
-	parities->push_back(block);
-	parities_num++;
+	Block *block;
+	
+	block = buildGlobalParity();	
 	block->store();
-	free(block->get_buffer());
+
+	parities->push_back(block);
+	parities_num = (int) parities->size();	
+
+	delete block->get_buffer();
 }
 
 
@@ -210,7 +216,8 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 
 	block_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
 	missing_buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* parity->getSize());
-	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());	
+	parity_buffer = (unsigned char *)malloc(sizeof(unsigned char)* parity->getSize());
+
 	parity->fetch(parity_buffer);
 	memcpy(missing_buffer, parity->get_buffer(), parity->getSize());
 
@@ -223,26 +230,30 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 				block_buffer[i] ^ missing_buffer[i];
 		}
 	}
-	free(block_buffer);
+
 	missing_block = new Block();
 	missing_block->from_buffer(missing_buffer, block_size);
+
+	delete block_buffer;	
+	delete parity_buffer;
+
 	return missing_block;
 }
 
 void Receipt::fixOneCorruptedBlock(std::vector<Block*> *blocks, std::vector<Block*> *corrupted_blocks, Block *parity, int block_size)
 {
 	Block *recovered_block;
+	Block *block;
 
 	recovered_block = recoverBlockFromParity(blocks, parity, block_size);
-	Block *block = corrupted_blocks->at(0);
+	
+	block = corrupted_blocks->at(0);
 	block->setSize(recovered_block->getSize());
-
+	
 	delete_block(recovered_block->getName());
 	recovered_block->store();
 
-	free(recovered_block->get_buffer());
-	free(recovered_block);
-	free(parity->get_buffer());
+	delete recovered_block;	
 }
 
 bool Receipt::fixIntegrity()
@@ -260,8 +271,7 @@ bool Receipt::fixIntegrity()
 		Block *parity = buildGlobalParity();
 		parity->store();
 	}
-
-	if (corrupted_blocks->size() == 1) {
+	else if (corrupted_blocks->size() == 1) {
 		printf("fixing corrupted block\n");
 		Block *block = corrupted_blocks->at(0);
 		if (block->isLast())
@@ -269,6 +279,13 @@ bool Receipt::fixIntegrity()
 		else
 			fixOneCorruptedBlock(sane_blocks, corrupted_blocks, parities->at(0), block_size);
 	}
+	else {
+		return false;
+	}
+
+	delete sane_blocks;
+	delete corrupted_blocks;
+	delete corrupted_parities;
 
 	return true;
 }
@@ -316,7 +333,7 @@ Receipt::recoverOriginalFile() {
 	delete_file(name);
 	rename_file(tmp_name, name);
 
-	free(block_buffer);
+	delete block_buffer;
 }
 
 bool Receipt::checkIntegrity()
@@ -358,7 +375,7 @@ bool Receipt::checkIntegrity()
 		ret = true;
 
 	delete corrupted_blocks;
-	free(buffer);
+	delete buffer;
 
 	return ret;
 }

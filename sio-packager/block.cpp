@@ -19,7 +19,7 @@ void Block::from_buffer(unsigned char *buffer, int block_size)
 /*	This method is _lazy_, calling 'from_file' just
 	sets the metadata of the block.
 	The content of the block must be explicitely retrieved
-	with fetch_block_data();
+	with fetch();
 */
 void Block::from_file(unsigned char *block_sha2, int block_size)
 {
