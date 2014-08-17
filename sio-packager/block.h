@@ -15,7 +15,7 @@ private:
 
     void init ();
 
-    void updateHash ();
+    void update_hash ();
 
 public:
     Block ();

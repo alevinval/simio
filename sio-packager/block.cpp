@@ -13,7 +13,7 @@ void Block::from_buffer (unsigned char *buffer, int block_size)
 {
     size = block_size;
     this->buffer = buffer;
-    updateHash ();
+    update_hash ();
 }
 
 /*	This method is _lazy_, calling 'from_file' just
@@ -80,7 +80,7 @@ Block::store ()
 }
 
 void
-Block::updateHash ()
+Block::update_hash ()
 {
     sha256 (sha2, buffer, size);
     sha2hexf (name, sha2);

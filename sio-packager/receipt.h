@@ -16,35 +16,33 @@ class Receipt
     std::vector<Block *> *blocks;
     std::vector<Block *> *parities;
 
-    void setHeader (unsigned char *file_path, int block_size);
+    void set_header (unsigned char *file_path, int block_size);
 
-    void setHash ();
+    void set_hash ();
 
-    void storeBlocks ();
+    void build_blocks ();
 
-    void storeParities ();
+    void build_parities ();
 
-    void storeReceipt ();
+    void store_receipt ();
 
-    void fetchReceipt (int fd);
+    void fetch_receipt (int fd);
 
-    void fetchBlocks (int fd);
+    void fetch_blocks (int fd);
 
-    void recoverOriginalFile ();
+    void recover_original_file ();
 
-    bool checkIntegrity ();
+    bool check_integrity ();
 
-    bool fixIntegrity ();
+    bool fix_integrity ();
 
-    Block *buildGlobalParity ();
-
-    void buildParities ();
+    Block *build_global_parity ();
 
     std::vector<Block *> *get_blocks_where_corruption (std::vector<Block *> *blocks, bool condition);
 
     void prune_blocks_integrity (std::vector<Block *> *store, std::vector<Block *> *blocks, unsigned char *buffer);
 
-    Block *recoverBlockFromParity (std::vector<Block *> *blocks, Block *parity, int block_size);
+    Block *recover_block_from_parity (std::vector<Block *> *blocks, Block *parity, int block_size);
 
     void fix_one_corrupted_block (std::vector<Block *> *sane_blocks, Block *block, Block *parity, int block_size);
 
