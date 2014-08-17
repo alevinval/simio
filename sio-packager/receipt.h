@@ -46,7 +46,7 @@ class Receipt
 
     Block *recoverBlockFromParity (std::vector<Block *> *blocks, Block *parity, int block_size);
 
-    void fixOneCorruptedBlock (std::vector<Block *> *sane_blocks, std::vector<Block *> *corrupted_blocks, Block *parity, int block_size);
+    void fix_one_corrupted_block (std::vector<Block *> *sane_blocks, Block *block, Block *parity, int block_size);
 
 public:
     ~Receipt ();

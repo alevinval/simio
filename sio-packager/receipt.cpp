@@ -242,16 +242,12 @@ Block *Receipt::recoverBlockFromParity (std::vector<Block *> *blocks, Block *par
     return missing_block;
 }
 
-void Receipt::fixOneCorruptedBlock (std::vector<Block *> *blocks, std::vector<Block *> *corrupted_blocks, Block *parity, int block_size)
+void Receipt::fix_one_corrupted_block (std::vector<Block *> *blocks, Block *block, Block *parity, int block_size)
 {
     Block *recovered_block;
-    Block *block;
 
     recovered_block = recoverBlockFromParity (blocks, parity, block_size);
-
-    block = corrupted_blocks->at (0);
     block->set_size (recovered_block->get_size ());
-
     delete_block (recovered_block->get_name ());
     recovered_block->store ();
 
@@ -276,9 +272,9 @@ bool Receipt::fixIntegrity ()
         printf ("fixing corrupted block\n");
         Block *block = corrupted_blocks->at (0);
         if (block->is_last ())
-            fixOneCorruptedBlock (sane_blocks, corrupted_blocks, parities->at (0), last_block_size);
+            fix_one_corrupted_block (sane_blocks, block, parities->at (0), last_block_size);
         else
-            fixOneCorruptedBlock (sane_blocks, corrupted_blocks, parities->at (0), block_size);
+            fix_one_corrupted_block (sane_blocks, block, parities->at (0), block_size);
     } else {
         return false;
     }
