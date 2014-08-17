@@ -336,6 +336,20 @@ Receipt::recoverOriginalFile() {
 	delete block_buffer;
 }
 
+void Receipt::prune_blocks_integrity(std::vector<Block*> *store, std::vector<Block*> *blocks, unsigned char *buffer)
+{
+    std::vector<Block*>::iterator block;
+
+    block = blocks->begin();
+    for(;block != blocks->end(); block++) {
+        (*block)->fetch(buffer);
+        if ( !(*block)->check_integrity() ) {
+            store->push_back((*block));
+            (*block)->set_corrupted ();
+        }
+    }
+}
+
 bool Receipt::checkIntegrity()
 {
 	std::vector<Block*> *corrupted_blocks;
@@ -346,24 +360,8 @@ bool Receipt::checkIntegrity()
 	corrupted_blocks = new std::vector<Block*>();
 	buffer = (unsigned char *)calloc(1, sizeof(unsigned char)* block_size);
 
-	block = blocks->begin();
-	for (; block != blocks->end(); block++) {		
-		(*block)->fetch(buffer);
-		if (!(*block)->check_integrity()) {
-			corrupted_blocks->push_back((*block));
-			(*block)->set_corrupted();
-		}
-	}
-
-
-	block = parities->begin();
-	for (; block != parities->end(); block++) {		
-		(*block)->fetch(buffer);
-		if (!(*block)->check_integrity()) {
-			corrupted_blocks->push_back((*block));
-			(*block)->set_corrupted();
-		}
-	}
+    prune_blocks_integrity (corrupted_blocks, this->blocks, buffer);
+    prune_blocks_integrity (corrupted_blocks, this->parities, buffer);
 
 	if (corrupted_blocks->size() > (size_t) parities_num)
 		die("cannot recover %i corrupted blocks with %i parities\n",
