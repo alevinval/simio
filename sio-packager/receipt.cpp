@@ -365,7 +365,7 @@ bool Receipt::checkIntegrity()
 		}
 	}
 
-	if (corrupted_blocks->size() > parities_num)
+	if (corrupted_blocks->size() > (size_t) parities_num)
 		die("cannot recover %i corrupted blocks with %i parities\n",
 		corrupted_blocks->size(), parities_num);
 
