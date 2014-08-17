@@ -58,8 +58,6 @@ Block::fetch()
 	block_size = file_size(fd);
 	if (block_size != size) {
 		setCorrupted();
-	} else {
-		size = block_size;
 	}
 	read(fd, buffer, size);	
 	close(fd);
