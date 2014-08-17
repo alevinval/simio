@@ -74,7 +74,8 @@ Receipt::storeBlocks()
 	buffer = (unsigned char *)malloc(sizeof(unsigned char)*block_size);
 	for (i = 0; i < size; i++) {
 		readed_bytes = fill_buffer(fd, buffer, block_size);
-		block = new Block(buffer, readed_bytes);
+		block = new Block();
+		block->from_buffer(buffer, readed_bytes);
 		blocks->push_back(block);
 		block->store();
 	}
@@ -131,7 +132,7 @@ Receipt::fetchBlocks(int fd)
 	for (i = 0; i < size; i++) {
 		read(fd, &block_sha2, 32);
 		block = new Block();
-		block->retrieve(block_sha2, block_size);		
+		block->from_file(block_sha2, block_size);		
 		blocks->push_back(block);
 	}
 	blocks->back()->setLast();
@@ -139,7 +140,7 @@ Receipt::fetchBlocks(int fd)
 	for (i = 0; i < parities_num; i++) {
 		read(fd, &block_sha2, 32);
 		block = new Block();
-		block->retrieve(block_sha2, block_size);
+		block->from_file(block_sha2, block_size);
 		parities->push_back(block);
 	}
 
@@ -182,7 +183,8 @@ Receipt::buildGlobalParity()
 		for (i = 0; i < block_size; i++)
 			parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
 	}
-	parity = new Block(parity_buffer, block_size);		
+	parity = new Block();
+	parity->from_buffer(parity_buffer, block_size);
 	free(block_buffer);
 	return parity;		
 }
@@ -225,7 +227,8 @@ Block *Receipt::recoverBlockFromParity(std::vector<Block *> *blocks, Block *pari
 		}
 	}
 	free(block_buffer);
-	missing_block = new Block(missing_buffer, block_size);
+	missing_block = new Block();
+	missing_block->from_buffer(missing_buffer, block_size);
 	return missing_block;
 }
 

@@ -6,16 +6,21 @@
 class Block {
 private:
 	unsigned char sha2[32];
-	unsigned char name[SHA2_STRING];
+	unsigned char name[SHA2_STRING];	
 	bool corrupted;
 	bool last;
-	int size;
-	void updateHash();
-public:
+	int size;	
+
+	void init();
+	void updateHash();	
+	void setName(unsigned char *name);
+public:	
 	unsigned char *buffer;
-	Block();
-	Block(unsigned char *buffer, int size);
+
+	Block();	
 	~Block();
+	void from_buffer(unsigned char *buffer, int size);
+	void from_file(unsigned char *block_sha2, int block_size);
 	bool isCorrupted();
 	bool isLast();
 	void setLast();
@@ -27,7 +32,6 @@ public:
 	unsigned char *getSha2();
 	unsigned char *getName();	
 	void store();
-	void retrieve(unsigned char *block_sha2, int block_size);
 	void fetchBlockData();
 	bool checkIntegrity();
 };

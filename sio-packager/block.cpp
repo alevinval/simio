@@ -6,34 +6,43 @@
 
 Block::Block()
 {
-	corrupted = false;
-	last = false;		
-	size = 0;
+	init();
 }
 
-Block::Block(unsigned char *buffer, int block_size)
-{
-	corrupted = false;	
+void Block::from_buffer(unsigned char *buffer, int block_size)
+{	
 	size = block_size;
-	last = false;
 	this->buffer = buffer;
 	updateHash();
+}
+
+/*	This method is _lazy_, calling 'from_file' just
+	sets the metadata of the block.
+	The content of the block must be explicitely retrieved
+	with fetch_block_data();
+*/
+void Block::from_file(unsigned char *block_sha2, int block_size)
+{
+	if (!block_sha2)
+		die("fetch_block: unallocated sha2\n");
+
+	memcpy(sha2, block_sha2, 32);
+	sha2hexf(name, sha2);
+	size = block_size;
+}
+
+void Block::init()
+{
+	memset(&sha2, 0, 32);
+	memset(&name, 0, SHA2_STRING);
+	corrupted = false;
+	last = false;
+	size = 0;
 }
 
 Block::~Block()
 {
 	if (buffer) free(buffer);
-}
-
-void 
-Block::retrieve(unsigned char *block_sha2, int block_size)
-{
-	if (!block_sha2)
-		die("fetch_block: unallocated sha2\n");
-	
-	memcpy(sha2, block_sha2, 32);
-	sha2hexf(name,sha2);
-	size = block_size;
 }
 
 void
