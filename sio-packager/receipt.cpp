@@ -136,6 +136,7 @@ Receipt::fetchBlocks(int fd)
 		blocks->push_back(block);
 	}
 	blocks->back()->setLast();
+	blocks->back()->setSize(last_block_size);
 
 	for (i = 0; i < parities_num; i++) {
 		read(fd, &block_sha2, 32);
