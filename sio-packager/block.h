@@ -13,8 +13,7 @@ private:
 	int size;	
 
 	void init();
-	void updateHash();	
-	void setName(unsigned char *name);
+	void updateHash();
 public:		
 	Block();	
 	~Block();
@@ -25,18 +24,18 @@ public:
 	void set_buffer(unsigned char *buffer);
 	unsigned char *get_buffer();
 
-	bool isCorrupted();
-	bool isLast();
-	void setLast();
-	int getSize();
-	void setSize(int size);	
-	void setCorrupted();
+	bool is_corrupted();
+	bool is_last();
+	void set_last();
+	int get_size();
+	void set_size(int size);
+	void set_corrupted();
 
-	unsigned char *getSha2();
-	unsigned char *getName();	
+	unsigned char *get_sha2();
+	unsigned char *get_name();
 	void store();
 	
-	bool checkIntegrity();
+	bool check_integrity();
 };
 
 #endif //BLOCK_H

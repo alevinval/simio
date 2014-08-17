@@ -18,7 +18,7 @@ void Block::from_buffer(unsigned char *buffer, int block_size)
 
 /*	This method is _lazy_, calling 'from_file' just
 	sets the metadata of the block.
-	The content of the block must be explicitely retrieved
+	The content of the block must be explicitly retrieved
 	with fetch();
 */
 void Block::from_file(unsigned char *block_sha2, int block_size)
@@ -59,7 +59,7 @@ Block::fetch(unsigned char *buffer)
 	fd = open_block(name);
 	block_size = file_size(fd);
 	if (block_size != size) {
-		setCorrupted();
+		set_corrupted();
 	}
 	read(fd, buffer, size);	
 	close(fd);
@@ -99,51 +99,51 @@ Block::get_buffer()
 }
 
 unsigned char *
-Block::getName()
+Block::get_name()
 {
 	return name;
 }
 
 unsigned char *
-Block::getSha2()
+Block::get_sha2()
 {
 	return sha2;
 }
 
 void
-Block::setSize(int size) {
+Block::set_size(int size) {
 	this->size = size;
 }
 
 int
-Block::getSize()
+Block::get_size()
 {
 	return size;
 }
 
 void
-Block::setCorrupted() {
+Block::set_corrupted() {
 	corrupted = true;
 }
 
 bool
-Block::isCorrupted()
+Block::is_corrupted()
 {
 	return corrupted;
 }
 
-void Block::setLast() {
+void Block::set_last() {
 	last = true;
 }
 
 bool
-Block::isLast()
+Block::is_last()
 {
 	return last;
 }
 
 bool
-Block::checkIntegrity()
+Block::check_integrity()
 {
 	unsigned char match_sha[32];
 
