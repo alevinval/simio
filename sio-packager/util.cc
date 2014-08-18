@@ -7,6 +7,9 @@
 
 #endif
 
+
+#include <sys/stat.h>
+
 #include <cstdio>
 
 #include <stdarg.h>
@@ -15,10 +18,9 @@
 
 long file_size (int fd)
 {
-    long fsize;
-    fsize = lseek (fd, 0, SEEK_END);
-    lseek (fd, 0, SEEK_SET);
-    return fsize;
+    struct stat s;
+    fstat(fd, &s);
+    return s.st_size;
 }
 
 /**
