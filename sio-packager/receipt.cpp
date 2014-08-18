@@ -17,7 +17,7 @@ Receipt::open (unsigned char *receipt_name)
     blocks = new std::vector<Block *>();
     parities = new std::vector<Block *>();
 
-    fd = open_receipt ((unsigned char *) receipt_name);
+    fd = open_receipt (receipt_name);
     fetch_receipt (fd);
     fetch_blocks (fd);
     close (fd);
