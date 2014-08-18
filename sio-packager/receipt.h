@@ -47,11 +47,13 @@ class Receipt
     void fix_one_corrupted_block (std::vector<Block *> *sane_blocks, Block *block, Block *parity, int block_size);
 
 public:
+    Receipt ();
     ~Receipt ();
 
-    Receipt (unsigned char *receipt_name);
 
-    Receipt (unsigned char *file_path, int block_size);
+    void open (unsigned char *receipt_name);
+
+    void create (unsigned char *file_path, int block_size);
 
     void pack ();
 

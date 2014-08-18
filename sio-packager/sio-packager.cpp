@@ -6,13 +6,15 @@
 
 void pack (unsigned char *file_path, int block_size)
 {
-    Receipt receipt = Receipt (file_path, block_size);
+    Receipt receipt = Receipt ();
+    receipt.create(file_path, block_size);
     receipt.pack ();
 }
 
 void unpack (bool skip_integrity)
 {
-    Receipt receipt = Receipt ((unsigned char *) ".receipt");
+    Receipt receipt = Receipt ();
+    receipt.open((unsigned char *) ".receipt");
     receipt.unpack (skip_integrity);
 }
 

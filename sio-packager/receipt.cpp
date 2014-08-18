@@ -5,8 +5,12 @@
 #include "dirnav.h"
 #include "util.h"
 
+Receipt::Receipt()
+{
+}
 
-Receipt::Receipt (unsigned char *receipt_name)
+void
+Receipt::open (unsigned char *receipt_name)
 {
     int fd;
 
@@ -19,7 +23,8 @@ Receipt::Receipt (unsigned char *receipt_name)
     close (fd);
 }
 
-Receipt::Receipt (unsigned char *file_path, int block_size)
+void
+Receipt::create (unsigned char *file_path, int block_size)
 {
     set_header (file_path, block_size);
     blocks = new std::vector<Block *>();
