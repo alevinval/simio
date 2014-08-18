@@ -16,19 +16,18 @@ class Receipt
     std::vector<Block *> *blocks;
     std::vector<Block *> *parities;
 
-    void set_header (unsigned char *file_path, int block_size);
+    void set_receipt_data (unsigned char *file_path, int block_size);
+    void fetch_receipt_data (int fd);
 
     void set_hash ();
 
-    void build_blocks ();
+    void pack_blocks ();
 
-    void build_parities ();
+    void pack_parities ();
 
     void store_receipt ();
 
-    void fetch_receipt (int fd);
-
-    void fetch_blocks (int fd);
+    void fetch_blocks_data (int fd);
 
     void recover_original_file ();
 

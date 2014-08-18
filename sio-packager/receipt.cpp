@@ -18,15 +18,15 @@ Receipt::open (unsigned char *receipt_name)
     parities = new std::vector<Block *>();
 
     fd = open_receipt (receipt_name);
-    fetch_receipt (fd);
-    fetch_blocks (fd);
+    fetch_receipt_data (fd);
+    fetch_blocks_data (fd);
     close (fd);
 }
 
 void
 Receipt::create (unsigned char *file_path, int block_size)
 {
-    set_header (file_path, block_size);
+    set_receipt_data (file_path, block_size);
     blocks = new std::vector<Block *>();
     parities = new std::vector<Block *>();
 }
@@ -40,8 +40,8 @@ Receipt::~Receipt ()
 void
 Receipt::pack ()
 {
-    build_blocks ();
-    build_parities ();
+    pack_blocks ();
+    pack_parities ();
     store_receipt ();
     set_hash ();
 }
@@ -64,7 +64,7 @@ Receipt::unpack (bool skip_integrity)
 }
 
 void
-Receipt::set_header (unsigned char *file_path, int block_size)
+Receipt::set_receipt_data (unsigned char *file_path, int block_size)
 {
     int fd, extra;
     fd = open_file (file_path);
@@ -97,7 +97,7 @@ Receipt::set_hash ()
 }
 
 void
-Receipt::build_blocks ()
+Receipt::pack_blocks ()
 {
     int i, fd, readed_bytes;
     unsigned char *buffer;
@@ -145,7 +145,7 @@ Receipt::store_receipt ()
 }
 
 void
-Receipt::fetch_receipt (int fd)
+Receipt::fetch_receipt_data (int fd)
 {
     read (fd, &sha2, 32);
     read (fd, &name, FNAME_LEN);
@@ -156,7 +156,7 @@ Receipt::fetch_receipt (int fd)
 }
 
 void
-Receipt::fetch_blocks (int fd)
+Receipt::fetch_blocks_data (int fd)
 {
     int i;
     unsigned char block_sha2[32];
@@ -214,7 +214,7 @@ Receipt::build_global_parity ()
     return parity;
 }
 
-void Receipt::build_parities ()
+void Receipt::pack_parities ()
 {
     Block *block;
 
