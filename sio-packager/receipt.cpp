@@ -42,8 +42,8 @@ Receipt::pack ()
 {
     pack_blocks ();
     pack_parities ();
-    store_receipt ();
     set_hash ();
+    store_receipt ();
 }
 
 void
