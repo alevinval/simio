@@ -77,6 +77,7 @@ Receipt::set_receipt_data (unsigned char *file_path, int block_size)
         size = file_size (fd) / block_size;
     parities_num = 0;
     this->block_size = block_size;
+    close(fd);
 }
 
 void
