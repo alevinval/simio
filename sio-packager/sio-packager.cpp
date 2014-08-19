@@ -4,7 +4,7 @@
 #include "receipt.h"
 #include "util.h"
 
-#define BLOCK_4KB 4000000
+#define BLOCK_4MB 4000000
 
 void pack (unsigned char *file_path, int block_size)
 {
@@ -30,7 +30,7 @@ int main (int argc, char *argv[])
     package->prepare ();
 
     if (strcmp (argv[1], "pack") == 0) {
-        pack ((unsigned char *) argv[2], BLOCK_4KB);
+        pack ((unsigned char *) argv[2], BLOCK_4MB);
     } else if (strcmp (argv[1], "unpack") == 0) {
         bool skip_integrity = false;
         if (argc == 4) if (strcmp (argv[3], "--skip-integrity") == 0)
