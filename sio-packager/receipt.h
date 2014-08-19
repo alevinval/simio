@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "dir.h"
-#include "block.h"
+#include "block.hpp"
 
 class Receipt
 {

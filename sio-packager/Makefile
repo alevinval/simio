@@ -2,7 +2,7 @@ C=g++
 CFLAGS=-Wall
 
 SOURCES = *.cc *.cpp
-HEADERS = *.h
+HEADERS = *.h *.hpp
 
 all:
 	g++ -O3 -Wall -Wextra -pedantic -ansi -Werror $(SOURCES) -o sio-packager
