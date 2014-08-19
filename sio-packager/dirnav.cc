@@ -25,7 +25,7 @@ void mv_parent ()
     chdir ("..");
 }
 
-int open_block (unsigned char *name)
+int open_block (const unsigned char *name)
 {
     int fd;
 
@@ -39,14 +39,14 @@ int open_block (unsigned char *name)
     return fd;
 }
 
-void delete_block (unsigned char *name)
+void delete_block (const unsigned char *name)
 {
     mv_package_blocks ();
     unlink ((char *) name);
     mv_parent ();
 }
 
-int open_create_block (unsigned char *name)
+int open_create_block (const unsigned char *name)
 {
     int fd;
 
@@ -61,7 +61,7 @@ int open_create_block (unsigned char *name)
 }
 
 int
-open_receipt (unsigned char *name)
+open_receipt (const unsigned char *name)
 {
     int fd;
 
@@ -77,7 +77,7 @@ open_receipt (unsigned char *name)
     return fd;
 }
 
-int open_create_receipt (unsigned char *name)
+int open_create_receipt (const unsigned char *name)
 {
     int fd;
 
@@ -91,7 +91,7 @@ int open_create_receipt (unsigned char *name)
     return fd;
 }
 
-int open_file (unsigned char *name)
+int open_file (const unsigned char *name)
 {
     int fd;
 
@@ -105,21 +105,21 @@ int open_file (unsigned char *name)
     return fd;
 }
 
-void delete_file (unsigned char *file_name)
+void delete_file (const unsigned char *file_name)
 {
     mv_parent ();
     unlink ((char *) file_name);
     mv_package_root ();
 }
 
-void rename_file (unsigned char *old_name, unsigned char *new_name)
+void rename_file (const unsigned char *old_name, const unsigned char *new_name)
 {
     mv_parent ();
     rename ((char *) old_name, (char *) new_name);
     mv_package_root ();
 }
 
-int open_create_file (unsigned char *name)
+int open_create_file (const unsigned char *name)
 {
     int fd;
 
@@ -134,7 +134,7 @@ int open_create_file (unsigned char *name)
     return fd;
 }
 
-void remove_file (unsigned char *name)
+void remove_file (const unsigned char *name)
 {
     mv_parent ();
     unlink ((char *) name);

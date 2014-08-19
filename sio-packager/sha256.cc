@@ -200,7 +200,7 @@ void sha256_final(sha256_ctx *ctx, unsigned char *digest)
     }
 }
 
-void sha256(unsigned char *digest, unsigned char *message, int len)
+void sha256(unsigned char *digest, const unsigned char *message, int len)
 {
     sha256_ctx ctx;
 
@@ -209,7 +209,7 @@ void sha256(unsigned char *digest, unsigned char *message, int len)
     sha256_final(&ctx, digest);
 }
 
-void sha2hex (unsigned char *hash)
+void sha2hex (const unsigned char (&hash)[32])
 {
     int i;
     for (i = 0; i < 32; i++)
@@ -217,7 +217,7 @@ void sha2hex (unsigned char *hash)
     printf ("\n");
 }
 
-void sha2hexf (unsigned char *outbuf, unsigned char *hash)
+void sha2hexf (unsigned char *outbuf, const unsigned char (&hash)[32])
 {
     int i;
     for (i = 0; i < 32; i++) {

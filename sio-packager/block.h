@@ -1,9 +1,10 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-class Block {
-    unsigned char sha2_[32];
+class Block
+{
     unsigned char name_[65];
+    unsigned char sha2_[32];
     unsigned char *buffer_;
     unsigned int size_;
     bool corrupted_;
@@ -23,7 +24,7 @@ public:
     unsigned char * buffer() const;
 
     void from_buffer(unsigned char *buffer, unsigned int size);
-    void from_file(unsigned char *sha2, unsigned int size);
+    void from_file(const unsigned char (&sha2)[32], unsigned int size);
 
     void fetch(unsigned char *buffer);
     void store();

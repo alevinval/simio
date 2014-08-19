@@ -67,10 +67,10 @@ void sha256_update(sha256_ctx *ctx, const unsigned char *message,
 void sha256_final(sha256_ctx *ctx, unsigned char *digest);
 
 
-void sha256 (unsigned char *hash, unsigned char *buffer, int len);
+void sha256 (unsigned char *hash, const unsigned char *buffer, int len);
 
-void sha2hex (unsigned char *hash);
+void sha2hex (const unsigned char (&hash)[32]);
 
-void sha2hexf (unsigned char *out, unsigned char *hash);
+void sha2hexf (unsigned char *out, const unsigned char (&hash)[32]);
 
 #endif // SHA256_H

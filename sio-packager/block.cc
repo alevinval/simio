@@ -1,11 +1,11 @@
 #include <string.h>
 
 #include "sha256.h"
-#include "block.hpp"
+#include "block.h"
 #include "util.h"
 #include "dirnav.h"
 
-Block::Block () : sha2_(), name_(), size_(0), corrupted_(false), last_(false)
+Block::Block () : name_(), sha2_(), size_(0), corrupted_(false), last_(false)
 {
 }
 
@@ -13,8 +13,12 @@ Block::~Block ()
 {
 }
 
-void Block::from_buffer (unsigned char *buffer, unsigned int size)
+void
+Block::from_buffer (unsigned char *buffer, unsigned int size)
 {
+    if (!buffer)
+        die("Block::from_buffer: no buffer");
+
     size_ = size;
     buffer_ = buffer;
     update_hash ();
@@ -25,11 +29,9 @@ void Block::from_buffer (unsigned char *buffer, unsigned int size)
 	The content of the block must be explicitly retrieved
 	with fetch();
 */
-void Block::from_file (unsigned char *sha2, unsigned int size)
+void
+Block::from_file (const unsigned char (&sha2)[32], unsigned int size)
 {
-    if (!sha2)
-        die ("fetch_block: unallocated sha2\n");
-
     memcpy (sha2_, sha2, 32);
     sha2hexf (name_, sha2);
     size_ = size;
@@ -42,7 +44,7 @@ Block::fetch (unsigned char *buffer)
     unsigned int block_size;
 
     if (!buffer)
-        die ("fetch_block_data: unallocated buffer\n");
+        die("Block::fetch: no buffer");
 
     buffer_ = buffer;
 
@@ -62,7 +64,7 @@ Block::store ()
     int fd;
 
     if (!buffer_)
-        die ("store_block: unallocated buffer\n");
+        die ("Block::store: no buffer\n");
 
     fd = open_create_block (name_);
     write (fd, buffer_, size_);
@@ -94,7 +96,7 @@ Block::integral () const
     unsigned char match_sha[32];
 
     if (!buffer_)
-        die ("check_integrity: unallocated buffer\n");
+        die ("Block::integral: no buffer\n");
 
     sha256 (match_sha, buffer_, size_);
     return !memcmp (match_sha, sha2_, 32);
