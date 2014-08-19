@@ -26,8 +26,8 @@ int main (int argc, char *argv[])
         die ("Usage: \nsio-packager pack|unpack file_name --skip-integrity");
     }
 
-    Package *package = new Package();
-    package->prepare ();
+    Package package = Package();
+    package.prepare ();
 
     if (strcmp (argv[1], "pack") == 0) {
         pack ((unsigned char *) argv[2], BLOCK_4MB);
