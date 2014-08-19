@@ -20,6 +20,10 @@ Receipt::open (unsigned char *receipt_name)
     fd = open_receipt (receipt_name);
     fetch_receipt_data (fd);
     fetch_blocks_data (fd);
+
+    blocks->reserve(size);
+    parities->reserve(1);
+
     close (fd);
 }
 
@@ -29,6 +33,8 @@ Receipt::create (unsigned char *file_path, int block_size)
     set_receipt_data (file_path, block_size);
     blocks = new std::vector<Block *>();
     parities = new std::vector<Block *>();
+    blocks->reserve (size);
+    parities->reserve (1);
 }
 
 Receipt::~Receipt ()
