@@ -47,7 +47,7 @@ void delete_block (const std::string &name)
 }
 
 int open_create_block (const std::string &name)
-{
+{	
     int fd;
 
     mv_package_blocks ();
@@ -61,13 +61,13 @@ int open_create_block (const std::string &name)
 }
 
 int
-open_receipt (const unsigned char *name)
+open_receipt(const std::string &name)
 {
     int fd;
 
     mv_package_receipts ();
 
-    fd = open ((char *) name, O_RDONLY | O_BINARY);
+    fd = open (name.c_str(), O_RDONLY | O_BINARY);
     mv_parent ();
 
     if (fd < 0)
@@ -77,12 +77,12 @@ open_receipt (const unsigned char *name)
     return fd;
 }
 
-int open_create_receipt (const unsigned char *name)
+int open_create_receipt(const std::string &name)
 {
     int fd;
 
     mv_package_receipts ();
-    fd = open ((char *) name, O_RDWR | O_CREAT | O_BINARY, 0666);
+    fd = open (name.c_str(), O_RDWR | O_CREAT | O_BINARY, 0666);
     mv_parent ();
 
     if (fd < 0)
@@ -91,12 +91,12 @@ int open_create_receipt (const unsigned char *name)
     return fd;
 }
 
-int open_file (const unsigned char *name)
+int open_file(const std::string &name)
 {
     int fd;
 
     mv_parent ();
-    fd = open ((char *) name, READ_PERM | O_BINARY);
+    fd = open (name.c_str(), READ_PERM | O_BINARY);
     mv_package_root ();
 
     if (fd < 0)
@@ -105,26 +105,26 @@ int open_file (const unsigned char *name)
     return fd;
 }
 
-void delete_file (const unsigned char *file_name)
+void delete_file(const std::string &name)
 {
     mv_parent ();
-    unlink ((char *) file_name);
+    unlink (name.c_str());
     mv_package_root ();
 }
 
-void rename_file (const unsigned char *old_name, const unsigned char *new_name)
+void rename_file (const std::string &old_name, const std::string &new_name)
 {
     mv_parent ();
-    rename ((char *) old_name, (char *) new_name);
+    rename (old_name.c_str(), new_name.c_str());
     mv_package_root ();
 }
 
-int open_create_file (const unsigned char *name)
+int open_create_file(const std::string &name)
 {
     int fd;
 
     mv_parent ();
-    fd = open ((char *) name, O_RDWR | O_CREAT | O_BINARY, 0666);
+    fd = open (name.c_str(), O_RDWR | O_CREAT | O_BINARY, 0666);
     mv_package_root ();
 
     if (fd < 0)
@@ -134,9 +134,9 @@ int open_create_file (const unsigned char *name)
     return fd;
 }
 
-void remove_file (const unsigned char *name)
+void remove_file(const std::string &name)
 {
     mv_parent ();
-    unlink ((char *) name);
+    unlink (name.c_str());
     mv_package_root ();
 }

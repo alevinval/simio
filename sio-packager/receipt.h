@@ -10,8 +10,8 @@ typedef std::vector<Block *> block_vector;
 
 class Receipt
 {
-    unsigned char sha2_[32];
-    unsigned char name_[FNAME_LEN];
+	std::string name_;
+    unsigned char sha2_[32];    
     unsigned int size_;
     unsigned int block_size_;
     unsigned int parities_num_;
@@ -19,7 +19,7 @@ class Receipt
     block_vector *blocks_;
     block_vector *parities_;
 
-    void set_receipt_data (const unsigned char *file_path, int block_size);
+    void set_receipt_data (const std::string &file_path, int block_size);
     void fetch_receipt_data (int fd);
     void set_hash ();
 
@@ -46,8 +46,8 @@ public:
     const block_vector *blocks() const;
     const block_vector *parities() const;
 
-    void open (const unsigned char *receipt_name);
-    void create (const unsigned char *file_path, int block_size);
+	void open(const std::string &name);
+	void create(const std::string &file_path, int block_size);
     void pack ();
     void unpack (bool skip_integrity);
 };

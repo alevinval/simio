@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
 
 void mv_package_root ();
 
@@ -19,19 +18,19 @@ int open_create_block (const std::string &name);
 
 void delete_block (const std::string &name);
 
-int open_receipt (const unsigned char *receipt_name);
+int open_receipt(const std::string &name);
 
-int open_create_receipt (const unsigned char *receipt_name);
+int open_create_receipt(const std::string &name);
 
-int open_file (const unsigned char *file_name);
+int open_file(const std::string &name);
 
-int open_create_file (const unsigned char *file_name);
+int open_create_file(const std::string &name);
 
-void delete_file (const unsigned char *file_name);
+void delete_file(const std::string &name);
 
-void remove_file (const unsigned char *file_name);
+void remove_file(const std::string &name);
 
-void rename_file (const unsigned char *old_name, const unsigned char *new_name);
+void rename_file(const std::string &old_name, const std::string &new_name);
 
 #endif //DIRNAV_H
 

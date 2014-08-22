@@ -36,6 +36,7 @@
 #define SHA2_H
 
 #include <stdint.h>
+#include <string>
 
 #define SHA2_STRING 65
 
@@ -68,9 +69,6 @@ void sha256_final(sha256_ctx *ctx, unsigned char *digest);
 
 
 void sha256 (unsigned char *hash, const unsigned char *buffer, int len);
-
-void sha2hex (const unsigned char (&hash)[32]);
-
-void sha2hexf (unsigned char *out, const unsigned char (&hash)[32]);
+std::string sha2hexf(const unsigned char(&hash)[32]);
 
 #endif // SHA256_H

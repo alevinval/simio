@@ -32,9 +32,13 @@
  * SUCH DAMAGE.
  */
 
-#include <string.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
 #include <cstdio>
+
 #include "sha256.h"
+
 
 #define UNPACK32(x, str)                      \
 {                                             \
@@ -209,19 +213,12 @@ void sha256(unsigned char *digest, const unsigned char *message, int len)
     sha256_final(&ctx, digest);
 }
 
-void sha2hex (const unsigned char (&hash)[32])
+std::string sha2hexf(const unsigned char(&hash)[32])
 {
-    int i;
-    for (i = 0; i < 32; i++)
-        printf ("%02x", hash[i]);
-    printf ("\n");
-}
-
-void sha2hexf (unsigned char *outbuf, const unsigned char (&hash)[32])
-{
-    int i;
-    for (i = 0; i < 32; i++) {
-        sprintf ((char *) outbuf, "%.2x", hash[i]);
-        outbuf += 2;
-    }
+	std::ostringstream os;
+	os.fill('0');
+	os << std::hex;
+	for (const unsigned char * ptr = hash; ptr<hash + 32; ptr++)
+		os << std::setw(2) << (unsigned int)*ptr;
+	return os.str();
 }

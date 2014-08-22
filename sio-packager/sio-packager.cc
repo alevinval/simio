@@ -6,7 +6,7 @@
 
 #define BLOCK_4MB 4000000
 
-void pack (const unsigned char *file_path, int block_size)
+void pack (std::string &file_path, int block_size)
 {
     Receipt receipt = Receipt ();
     receipt.create(file_path, block_size);
@@ -16,7 +16,7 @@ void pack (const unsigned char *file_path, int block_size)
 void unpack (bool skip_integrity)
 {
     Receipt receipt = Receipt ();
-    receipt.open((unsigned char *)".receipt");
+    receipt.open(".receipt");
     receipt.unpack (skip_integrity);
 }
 
@@ -30,7 +30,7 @@ int main (int argc, char *argv[])
     package.prepare ();
 
     if (strcmp (argv[1], "pack") == 0) {
-        pack ((unsigned char *)argv[2], BLOCK_4MB);
+        pack (std::string(argv[2]), BLOCK_4MB);
     } else if (strcmp (argv[1], "unpack") == 0) {
         bool skip_integrity = false;
         if (argc == 4) if (strcmp (argv[3], "--skip-integrity") == 0)

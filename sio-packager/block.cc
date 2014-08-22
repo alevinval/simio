@@ -5,8 +5,9 @@
 #include "util.h"
 #include "dirnav.h"
 
-Block::Block () : name_(), sha2_(), size_(0), corrupted_(false), last_(false)
+Block::Block () : sha2_(), size_(0), corrupted_(false), last_(false)
 {
+	name_ = std::string(64, ' ');
 }
 
 Block::~Block ()
@@ -33,7 +34,7 @@ void
 Block::from_file (const unsigned char (&sha2)[32], unsigned int size)
 {
     memcpy (sha2_, sha2, 32);
-    sha2hexf ((unsigned char*)name_.c_str(), sha2);
+    name_ = sha2hexf (sha2);
     size_ = size;
 }
 
@@ -65,7 +66,7 @@ Block::store ()
 
     if (!buffer_)
         die ("Block::store: no buffer\n");
-
+	
     fd = open_create_block (name_);
     write (fd, buffer_, size_);
     close (fd);
@@ -75,7 +76,7 @@ void
 Block::update_hash ()
 {
     sha256 (sha2_, buffer_, size_);
-    sha2hexf ((unsigned char *)name_.c_str(), sha2_);
+	name_ = sha2hexf(sha2_);    
 }
 
 unsigned int
@@ -130,6 +131,7 @@ void
 Block::set_last(unsigned int size)
 {
     size_ = size;
+	last_ = true;
 }
 
 void
