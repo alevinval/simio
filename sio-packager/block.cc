@@ -33,7 +33,7 @@ void
 Block::from_file (const unsigned char (&sha2)[32], unsigned int size)
 {
     memcpy (sha2_, sha2, 32);
-    sha2hexf (name_, sha2);
+    sha2hexf ((unsigned char*)name_.c_str(), sha2);
     size_ = size;
 }
 
@@ -75,7 +75,7 @@ void
 Block::update_hash ()
 {
     sha256 (sha2_, buffer_, size_);
-    sha2hexf (name_, sha2_);
+    sha2hexf ((unsigned char *)name_.c_str(), sha2_);
 }
 
 unsigned int
@@ -114,7 +114,7 @@ Block::sha2 () const
     return sha2_;
 }
 
-const unsigned char *
+const std::string &
 Block::name () const
 {
     return name_;

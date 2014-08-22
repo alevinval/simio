@@ -1,9 +1,11 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#include <string>
+
 class Block
 {
-    unsigned char name_[65];
+	std::string name_;
     unsigned char sha2_[32];
     unsigned char *buffer_;
     unsigned int size_;
@@ -20,7 +22,7 @@ public:
     bool integral() const;
     bool last() const;
     const unsigned char *sha2() const;
-    const unsigned char *name() const;
+    const std::string &name() const;
     unsigned char * buffer() const;
 
     void from_buffer(unsigned char *buffer, unsigned int size);

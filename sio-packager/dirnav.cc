@@ -25,12 +25,12 @@ void mv_parent ()
     chdir ("..");
 }
 
-int open_block (const unsigned char *name)
+int open_block (const std::string &name)
 {
     int fd;
 
     mv_package_blocks ();
-    fd = open ((char *) name, O_RDONLY | O_BINARY);
+    fd = open (name.c_str(), O_RDONLY | O_BINARY);
     mv_parent ();
 
     if (fd < 0)
@@ -39,19 +39,19 @@ int open_block (const unsigned char *name)
     return fd;
 }
 
-void delete_block (const unsigned char *name)
+void delete_block (const std::string &name)
 {
     mv_package_blocks ();
-    unlink ((char *) name);
+    unlink (name.c_str());
     mv_parent ();
 }
 
-int open_create_block (const unsigned char *name)
+int open_create_block (const std::string &name)
 {
     int fd;
 
     mv_package_blocks ();
-    fd = open ((char *) name, O_RDWR | O_CREAT | O_BINARY, 0666);
+    fd = open (name.c_str(), O_RDWR | O_CREAT | O_BINARY, 0666);
     mv_parent ();
 
     if (fd < 0)

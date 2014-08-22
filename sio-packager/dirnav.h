@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
 void mv_package_root ();
 
@@ -12,11 +13,11 @@ void mv_package_receipts ();
 
 void mv_parent ();
 
-int open_block (const unsigned char *block_name);
+int open_block (const std::string &name);
 
-int open_create_block (const unsigned char *block_name);
+int open_create_block (const std::string &name);
 
-void delete_block (const unsigned char *block_name);
+void delete_block (const std::string &name);
 
 int open_receipt (const unsigned char *receipt_name);
 
