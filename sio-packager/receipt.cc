@@ -49,8 +49,7 @@ void Receipt::create(const std::string &file_path, int block_size)
 
 void Receipt::pack()
 {
-    pack_blocks();
-    pack_parities();
+    pack_blocks();    
     set_hash();
     store_receipt();
 }
@@ -107,24 +106,43 @@ void Receipt::set_hash()
 
 void Receipt::pack_blocks()
 {
-    unsigned int i;
+    unsigned int i, j;
     int fd, readed_bytes;
     unsigned char *buffer;
+	unsigned char *parity_buffer;
     Block *block;
+	Block *global_parity;		
 
     fd = open_file(name_);
-    buffer = new unsigned char[block_size_];
 
+	// Initialize things
+	global_parity = new Block();
+    buffer = new unsigned char[block_size_];
+	parity_buffer = new unsigned char[block_size_]();
+	
+	// Process the file and pack the blocks ( build the global parity 
+	// at the same time )
     for (i = 0; i < size_; i++) {
         readed_bytes = fill_buffer(fd, buffer, block_size_);
         block = new Block();
         block->from_buffer(buffer, readed_bytes);
         block->store();
-        blocks_->push_back(block);
+        blocks_->push_back(block);		
+		for (j = 0; j < block_size_; j++)
+			parity_buffer[j] = buffer[j] ^ parity_buffer[j];
     }
     last_block_size_ = block->size();
     block->set_last(last_block_size_);
+
+	global_parity->from_buffer(parity_buffer, block_size_);
+	global_parity->store();
+	parities_->push_back(global_parity);
+
+	// Update number of parities.
+	parities_num_ = (int)parities_->size();
+
     delete[] buffer;
+	delete[] parity_buffer;
 }
 
 void Receipt::store_receipt()
@@ -189,52 +207,6 @@ void Receipt::fetch_blocks_data(int fd)
         block->from_file(block_sha2, block_size_);
         parities_->push_back(block);
     }
-}
-
-Block *Receipt::build_global_parity()
-{
-    unsigned int i;
-    unsigned char *block_buffer;
-    unsigned char *parity_buffer;
-
-    block_vector::iterator block;
-    Block *parity;
-
-    block_buffer = new unsigned char[block_size_]();
-    parity_buffer = new unsigned char[block_size_]();
-
-    /** Build Global Parity */
-
-    block = blocks_->begin();
-    (*block)->fetch(block_buffer);
-    memcpy(parity_buffer, block_buffer, (*block)->size());
-    block++;
-    for (; block != blocks_->end(); block++) {
-        memset(block_buffer, 0, block_size_);
-        (*block)->fetch(block_buffer);
-        for (i = 0; i < block_size_; i++)
-            parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
-    }
-
-    parity = new Block();
-    parity->from_buffer(parity_buffer, block_size_);
-
-    delete[] block_buffer;
-
-    return parity;
-}
-
-void Receipt::pack_parities()
-{
-    Block *block;
-
-    block = build_global_parity();
-    block->store();
-
-    parities_->push_back(block);
-    parities_num_ = (int)parities_->size();
-
-    delete block->buffer();
 }
 
 void Receipt::recover_original_file()

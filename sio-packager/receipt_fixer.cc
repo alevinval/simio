@@ -135,3 +135,36 @@ block_vector Receipt::get_blocks_where_corruption(block_vector *blocks,
 
     return filtered_blocks;
 }
+
+Block *Receipt::build_global_parity()
+{
+	unsigned int i;
+	unsigned char *block_buffer;
+	unsigned char *parity_buffer;
+
+	block_vector::iterator block;
+	Block *parity;
+
+	block_buffer = new unsigned char[block_size_]();
+	parity_buffer = new unsigned char[block_size_]();
+
+	/** Build Global Parity */
+
+	block = blocks_->begin();
+	(*block)->fetch(block_buffer);
+	memcpy(parity_buffer, block_buffer, (*block)->size());
+	block++;
+	for (; block != blocks_->end(); block++) {
+		memset(block_buffer, 0, block_size_);
+		(*block)->fetch(block_buffer);
+		for (i = 0; i < block_size_; i++)
+			parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
+	}
+
+	parity = new Block();
+	parity->from_buffer(parity_buffer, block_size_);
+
+	delete[] block_buffer;
+
+	return parity;
+}

@@ -24,8 +24,7 @@ class Receipt
     void set_hash();
 
     void store_receipt();
-    void pack_blocks();
-    void pack_parities();
+    void pack_blocks();    
     void fetch_blocks_data(int fd);
 
     // All this methods should be moved in a separate class, namely, ReceiptFixer
