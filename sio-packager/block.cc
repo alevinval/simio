@@ -22,7 +22,8 @@ void Block::from_buffer(unsigned char *buffer, unsigned int size)
     update_hash();
 }
 
-/*	This method is _lazy_, calling 'from_file' just
+/*	
+		This method is _lazy_, calling 'from_file' just
         sets the metadata of the block.
         The content of the block must be explicitly retrieved
         with fetch();
