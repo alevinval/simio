@@ -107,7 +107,7 @@ Receipt::set_hash ()
     }
 
     sha256 (sha2_, hash_buffer, size_ * 32);
-    free (hash_buffer);
+    delete [] hash_buffer;
 }
 
 void
@@ -130,7 +130,7 @@ Receipt::pack_blocks ()
     }	
     last_block_size_ = block->size ();
 	block->set_last(last_block_size_);
-    delete buffer;
+    delete [] buffer;
 }
 
 void
@@ -230,7 +230,7 @@ Receipt::build_global_parity ()
     parity = new Block();
     parity->from_buffer (parity_buffer, block_size_);
 
-    delete block_buffer;
+    delete [] block_buffer;
 
     return parity;
 }
@@ -275,5 +275,5 @@ Receipt::recover_original_file ()
     delete_file (name_);
     rename_file (tmp_name, name_);
 
-    delete block_buffer;
+    delete [] block_buffer;
 }

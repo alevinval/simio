@@ -22,7 +22,7 @@ bool Receipt::check_integrity()
 	else
 		ret = true;
 	
-	delete buffer;
+	delete [] buffer;
 
 	return ret;
 }
@@ -102,8 +102,8 @@ Receipt::recover_block_from_parity(block_vector &blocks, Block &parity, int bloc
 	missing_block = new Block();
 	missing_block->from_buffer(missing_buffer, block_size);
 
-	delete block_buffer;
-	delete parity_buffer;
+	delete [] block_buffer;
+	delete [] parity_buffer;
 
 	return missing_block;
 }
