@@ -1,3 +1,4 @@
+#include <cstring>
 #include "util.h"
 #include "receipt.h"
 

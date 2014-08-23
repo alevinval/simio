@@ -32,7 +32,7 @@
  * SUCH DAMAGE.
  */
 
-#include <string>
+#include <cstring>
 #include <sstream>
 #include <iomanip>
 #include <cstdio>
