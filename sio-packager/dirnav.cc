@@ -34,7 +34,7 @@ int open_block (const std::string &name)
     mv_parent ();
 
     if (fd < 0)
-        die ("open_block: cannot open requested block\n[%s]\n", name);
+        die ("open_block: cannot open requested block\n[%s]\n", name.c_str());
 
     return fd;
 }
@@ -56,7 +56,7 @@ int open_create_block (const std::string &name)
 
     if (fd < 0)
         die ("open_create_block: cannot open requested block\n[%s]\n",
-             name);
+			 name.c_str());
     return fd;
 }
 
@@ -72,7 +72,7 @@ open_receipt(const std::string &name)
 
     if (fd < 0)
         die ("open_receipt: cannot open requested receipt \"%s\"\n",
-             name);
+			 name.c_str());
 
     return fd;
 }
@@ -86,7 +86,7 @@ int open_create_receipt(const std::string &name)
     mv_parent ();
 
     if (fd < 0)
-        die ("open_create_receipt: cannot create requested receipt \"%s\"\n", name);
+		die("open_create_receipt: cannot create requested receipt \"%s\"\n", name.c_str());
 
     return fd;
 }
@@ -100,7 +100,7 @@ int open_file(const std::string &name)
     mv_package_root ();
 
     if (fd < 0)
-        die ("open_file: cannot open requested file \"%s\"\n", name);
+		die("open_file: cannot open requested file \"%s\"\n", name.c_str());
 
     return fd;
 }
@@ -129,7 +129,7 @@ int open_create_file(const std::string &name)
 
     if (fd < 0)
         die ("open_create_file: cannot create requested file \"%s\"\n",
-             name);
+			 name.c_str());
 
     return fd;
 }
