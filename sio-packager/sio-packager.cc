@@ -6,7 +6,7 @@
 
 #define BLOCK_4MB 4000000
 
-void pack (std::string &file_path, int block_size)
+void pack (std::string file_path, int block_size)
 {
     Receipt receipt = Receipt ();
     receipt.create(file_path, block_size);
