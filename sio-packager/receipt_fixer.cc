@@ -82,15 +82,10 @@ Block *Receipt::recover_block_from_parity(block_vector &blocks, Block &parity,
     block_vector::iterator block;
     Block *missing_block;
 
-    block_buffer = new unsigned char[parity.size()](); //(unsigned char *) calloc
-    //(1, sizeof (unsigned
-    //char) * parity->size ());
+    block_buffer = new unsigned char[parity.size()]();
     missing_buffer =
-        new unsigned char[parity.size()](); //(unsigned char *) calloc (1, sizeof
-    //(unsigned char) * parity->size ());
-    parity_buffer = new unsigned char[parity.size()]; //(unsigned char *) malloc
-    //(sizeof (unsigned char) *
-    //parity->size ());
+        new unsigned char[parity.size()]();
+    parity_buffer = new unsigned char[parity.size()];
 
     parity.fetch(parity_buffer);
     memcpy(missing_buffer, parity.buffer(), parity.size());

@@ -200,12 +200,8 @@ Block *Receipt::build_global_parity()
     block_vector::iterator block;
     Block *parity;
 
-    block_buffer = new unsigned char[block_size_](); // (unsigned char *) calloc
-    // (1, sizeof (unsigned char)
-    // * block_size_);
-    parity_buffer = new unsigned char[block_size_](); // (unsigned char *) calloc
-    // (1, sizeof (unsigned
-    // char) * block_size_);
+    block_buffer = new unsigned char[block_size_]();
+    parity_buffer = new unsigned char[block_size_]();
 
     /** Build Global Parity */
 
@@ -253,9 +249,7 @@ void Receipt::recover_original_file()
     tmp_name.append(".tmp");
 
     fd = open_create_file(tmp_name);
-    block_buffer = new unsigned char[block_size_]; //(unsigned char *) malloc
-    //(sizeof (unsigned char) *
-    //block_size_);
+    block_buffer = new unsigned char[block_size_];
 
     block = blocks_->begin();
     for (; block != blocks_->end(); block++) {
