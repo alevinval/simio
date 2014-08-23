@@ -5,7 +5,7 @@
 
 class Block
 {
-	std::string name_;
+    std::string name_;
     unsigned char sha2_[32];
     unsigned char *buffer_;
     unsigned int size_;
@@ -13,6 +13,7 @@ class Block
     bool last_;
 
     void update_hash();
+
 public:
     Block();
     ~Block();
@@ -23,7 +24,7 @@ public:
     bool last() const;
     const unsigned char *sha2() const;
     const std::string &name() const;
-    unsigned char * buffer() const;
+    unsigned char *buffer() const;
 
     void from_buffer(unsigned char *buffer, unsigned int size);
     void from_file(const unsigned char (&sha2)[32], unsigned int size);
@@ -35,4 +36,4 @@ public:
     void set_corrupted();
 };
 
-#endif //BLOCK_H
+#endif // BLOCK_H

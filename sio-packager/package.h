@@ -4,16 +4,15 @@
 class Package
 {
 public:
-    Package ();
+    Package();
 
-    ~Package ();
+    ~Package();
 
-    int create ();
+    int create();
 
-    void initialize ();
+    void initialize();
 
-    void prepare ();
+    void prepare();
 };
-
 
 #endif // PACKAGE_H

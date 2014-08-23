@@ -14,4 +14,4 @@ public:
     Block *global_parity();
 };
 
-#endif //RECEIPT_FIXER_H
+#endif // RECEIPT_FIXER_H
