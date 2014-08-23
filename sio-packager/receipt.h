@@ -33,10 +33,10 @@ class Receipt
     bool check_integrity ();
     bool fix_integrity ();
     Block *build_global_parity ();
-    block_vector *get_blocks_where_corruption (block_vector *blocks, bool condition);
-    void prune_blocks_integrity (block_vector *store, block_vector *blocks, unsigned char *buffer);
-    Block *recover_block_from_parity (block_vector *blocks, Block *parity, int block_size);
-    void fix_one_corrupted_block (block_vector *sane_blocks, Block *block, Block *parity, int block_size);
+    block_vector get_blocks_where_corruption (block_vector *blocks, bool condition);
+    void prune_blocks_integrity (block_vector &store, block_vector &blocks, unsigned char *buffer);
+    Block *recover_block_from_parity (block_vector &blocks, Block &parity, int block_size);
+    void fix_one_corrupted_block (block_vector &sane_blocks, Block &block, Block &parity, int block_size);
     // End
 
 public:
