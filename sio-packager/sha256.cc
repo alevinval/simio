@@ -40,26 +40,28 @@
 #include "sha256.h"
 
 #define UNPACK32(x, str)                                                       \
-  {                                                                            \
-    *((str) + 3) = (uint8_t)((x));                                             \
-    *((str) + 2) = (uint8_t)((x) >> 8);                                        \
-    *((str) + 1) = (uint8_t)((x) >> 16);                                       \
-    *((str) + 0) = (uint8_t)((x) >> 24);                                       \
-  }
+    {                                                                          \
+        *((str)+3) = (uint8_t)((x));                                           \
+        *((str)+2) = (uint8_t)((x) >> 8);                                      \
+        *((str)+1) = (uint8_t)((x) >> 16);                                     \
+        *((str)+0) = (uint8_t)((x) >> 24);                                     \
+    }
 
 #define PACK32(str, x)                                                         \
-  {                                                                            \
-    *(x) = ((uint32_t) * ((str) + 3)) | ((uint32_t) * ((str) + 2) << 8) |      \
-           ((uint32_t) * ((str) + 1) << 16) |                                  \
-           ((uint32_t) * ((str) + 0) << 24);                                   \
-  }
+    {                                                                          \
+        *(x) = ((uint32_t) * ((str)+3)) | ((uint32_t) * ((str)+2) << 8) |      \
+               ((uint32_t) * ((str)+1) << 16) |                                \
+               ((uint32_t) * ((str)+0) << 24);                                 \
+    }
 
 #define SHA256_SCR(i)                                                          \
-  { w[i] = SHA256_F4(w[i - 2]) + w[i - 7] + SHA256_F3(w[i - 15]) + w[i - 16]; }
+    {                                                                          \
+        w[i] =                                                                 \
+            SHA256_F4(w[i - 2]) + w[i - 7] + SHA256_F3(w[i - 15]) + w[i - 16]; \
+    }
 
-uint32_t sha256_h0[8] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
-                          0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
-                        };
+uint32_t sha256_h0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
+                         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
 
 uint32_t sha256_k[64] = {
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
@@ -72,8 +74,7 @@ uint32_t sha256_k[64] = {
     0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a,
     0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
-};
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
 /* SHA-256 functions */
 
@@ -104,8 +105,8 @@ void sha256_transf(sha256_ctx *ctx, const unsigned char *message,
         }
 
         for (j = 0; j < 64; j++) {
-            t1 = wv[7] + SHA256_F2(wv[4]) + CH(wv[4], wv[5], wv[6]) + sha256_k[j] +
-                 w[j];
+            t1 = wv[7] + SHA256_F2(wv[4]) + CH(wv[4], wv[5], wv[6]) +
+                 sha256_k[j] + w[j];
             t2 = SHA256_F1(wv[0]) + MAJ(wv[0], wv[1], wv[2]);
             wv[7] = wv[6];
             wv[6] = wv[5];

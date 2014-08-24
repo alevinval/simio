@@ -12,9 +12,9 @@ Receipt::Receipt()
 {
     blocks_ = block_vector();
     parities_ = block_vector();
-	sane_blocks_ = block_vector();
-	corrupted_blocks_ =  block_vector();
-	corrupted_parities_ = block_vector();
+    sane_blocks_ = block_vector();
+    corrupted_blocks_ = block_vector();
+    corrupted_parities_ = block_vector();
 }
 
 Receipt::~Receipt()
@@ -50,7 +50,7 @@ void Receipt::create(const std::string &file_path, int block_size)
 
 void Receipt::pack()
 {
-    pack_blocks();    
+    pack_blocks();
     set_hash();
     store_receipt();
 }
@@ -62,15 +62,14 @@ void Receipt::unpack(bool skip_integrity)
         return;
     }
 
-	try {
-		recover_original_file_with_check();
-	}
-	catch (int offset) {		
-		check_integrity(offset);
-		if (fix_integrity()) {
-			recover_original_file();
-		}
-	}
+    try {
+        recover_original_file_with_check();
+    } catch (int offset) {
+        check_integrity(offset);
+        if (fix_integrity()) {
+            recover_original_file();
+        }
+    }
 }
 
 void Receipt::set_receipt_data(const std::string &file_path, int block_size)
@@ -109,43 +108,43 @@ void Receipt::set_hash()
 
 void Receipt::pack_blocks()
 {
-	unsigned int i;	
+    unsigned int i;
     int j, fd, readed_bytes;
     unsigned char *buffer;
-	unsigned char *parity_buffer;
+    unsigned char *parity_buffer;
     Block *block;
-	Block *global_parity;		
+    Block *global_parity;
 
     fd = open_file(name_);
 
-	// Initialize things
-	global_parity = new Block();
+    // Initialize things
+    global_parity = new Block();
     buffer = new unsigned char[block_size_];
-	parity_buffer = new unsigned char[block_size_]();
-	
-	// Process the file and pack the blocks ( build the global parity 
-	// at the same time )
+    parity_buffer = new unsigned char[block_size_]();
+
+    // Process the file and pack the blocks ( build the global parity
+    // at the same time )
     for (i = 0; i < size_; i++) {
         readed_bytes = fill_buffer(fd, buffer, block_size_);
         block = new Block();
         block->from_buffer(buffer, readed_bytes);
         block->store();
-        blocks_.push_back(block);		
-		for (j = 0; j < readed_bytes; j++)
-			parity_buffer[j] ^= buffer[j];
+        blocks_.push_back(block);
+        for (j = 0; j < readed_bytes; j++)
+            parity_buffer[j] ^= buffer[j];
     }
     last_block_size_ = block->size();
     block->set_last(last_block_size_);
 
-	global_parity->from_buffer(parity_buffer, block_size_);
-	global_parity->store();
-	parities_.push_back(global_parity);
+    global_parity->from_buffer(parity_buffer, block_size_);
+    global_parity->store();
+    parities_.push_back(global_parity);
 
-	// Update number of parities.
-	parities_num_ = (int)parities_.size();
+    // Update number of parities.
+    parities_num_ = (int)parities_.size();
 
     delete[] buffer;
-	delete[] parity_buffer;
+    delete[] parity_buffer;
 }
 
 void Receipt::store_receipt()
@@ -243,38 +242,38 @@ void Receipt::recover_original_file()
 
 void Receipt::recover_original_file_with_check()
 {
-	int fd, i;
+    int fd, i;
 
-	std::string tmp_name;
-	unsigned char *block_buffer;
-	block_vector::iterator block;
+    std::string tmp_name;
+    unsigned char *block_buffer;
+    block_vector::iterator block;
 
-	tmp_name = name_.c_str();
-	tmp_name.append(".tmp");
+    tmp_name = name_.c_str();
+    tmp_name.append(".tmp");
 
-	fd = open_create_file(tmp_name);
-	block_buffer = new unsigned char[block_size_];
+    fd = open_create_file(tmp_name);
+    block_buffer = new unsigned char[block_size_];
 
-	i = 0;
-	block = blocks_.begin();
-	for (; block != blocks_.end(); block++) {
-		(*block)->fetch(block_buffer);
-		if (!(*block)->integral()) {
-			(*block)->set_corrupted();
-			close(fd);
-			delete_file(tmp_name);
-			delete[] block_buffer;
-			throw i;
-		}
-		sane_blocks_.push_back(*block);
-		write(fd, block_buffer, (*block)->size());
-		i++;
-	}
+    i = 0;
+    block = blocks_.begin();
+    for (; block != blocks_.end(); block++) {
+        (*block)->fetch(block_buffer);
+        if (!(*block)->integral()) {
+            (*block)->set_corrupted();
+            close(fd);
+            delete_file(tmp_name);
+            delete[] block_buffer;
+            throw i;
+        }
+        sane_blocks_.push_back(*block);
+        write(fd, block_buffer, (*block)->size());
+        i++;
+    }
 
-	close(fd);
+    close(fd);
 
-	delete_file(name_);
-	rename_file(tmp_name, name_);
+    delete_file(name_);
+    rename_file(tmp_name, name_);
 
-	delete[] block_buffer;
+    delete[] block_buffer;
 }

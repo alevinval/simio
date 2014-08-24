@@ -3,15 +3,11 @@
 
 class Package
 {
-public:
+  public:
     Package();
-
     ~Package();
-
     int create();
-
     void initialize();
-
     void prepare();
 };
 

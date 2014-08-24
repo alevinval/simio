@@ -3,7 +3,7 @@
 #include "receipt.h"
 
 bool Receipt::check_integrity(int from)
-{    
+{
     block_vector::iterator block;
     unsigned char *buffer;
     bool ret;
@@ -37,25 +37,24 @@ void Receipt::prune_blocks_integrity(unsigned char *buffer, int from)
         if (!(*block)->integral()) {
             (*block)->set_corrupted();
             corrupted_blocks_.push_back((*block));
-		}
-		else {
-			sane_blocks_.push_back((*block));
-		}
+        } else {
+            sane_blocks_.push_back((*block));
+        }
     }
 }
 
 void Receipt::prune_parities_integrity(unsigned char *buffer, int from)
 {
-	block_vector::iterator block;
+    block_vector::iterator block;
 
-	block = parities_.begin() + from;
-	for (; block != parities_.end(); block++) {
-		(*block)->fetch(buffer);
-		if (!(*block)->integral()) {
-			(*block)->set_corrupted();
-			corrupted_parities_.push_back((*block));
-		}
-	}
+    block = parities_.begin() + from;
+    for (; block != parities_.end(); block++) {
+        (*block)->fetch(buffer);
+        if (!(*block)->integral()) {
+            (*block)->set_corrupted();
+            corrupted_parities_.push_back((*block));
+        }
+    }
 }
 
 bool Receipt::fix_integrity()
@@ -82,7 +81,7 @@ bool Receipt::fix_integrity()
 }
 
 Block *Receipt::recover_block_from_parity(block_vector &blocks, Block &parity,
-        int block_size)
+                                          int block_size)
 {
     unsigned int i;
     unsigned char *missing_buffer;
@@ -93,8 +92,7 @@ Block *Receipt::recover_block_from_parity(block_vector &blocks, Block &parity,
     Block *missing_block;
 
     block_buffer = new unsigned char[parity.size()]();
-    missing_buffer =
-        new unsigned char[parity.size()]();
+    missing_buffer = new unsigned char[parity.size()]();
     parity_buffer = new unsigned char[parity.size()];
 
     parity.fetch(parity_buffer);
@@ -131,7 +129,7 @@ void Receipt::fix_one_corrupted_block(block_vector &blocks, Block &block,
 }
 
 block_vector Receipt::get_blocks_where_corruption(block_vector *blocks,
-        bool condition)
+                                                  bool condition)
 {
     block_vector::iterator block;
     block_vector filtered_blocks = block_vector();
@@ -148,29 +146,29 @@ block_vector Receipt::get_blocks_where_corruption(block_vector *blocks,
 
 Block *Receipt::build_global_parity()
 {
-	unsigned int i;
-	unsigned char *block_buffer;
-	unsigned char *parity_buffer;
+    unsigned int i;
+    unsigned char *block_buffer;
+    unsigned char *parity_buffer;
 
-	block_vector::iterator block;
-	Block *parity;
+    block_vector::iterator block;
+    Block *parity;
 
-	block_buffer = new unsigned char[block_size_];
-	parity_buffer = new unsigned char[block_size_]();
+    block_buffer = new unsigned char[block_size_];
+    parity_buffer = new unsigned char[block_size_]();
 
-	/** Build Global Parity */
+    /** Build Global Parity */
 
-	block = blocks_.begin();
-	for (; block != blocks_.end(); block++) {		
-		(*block)->fetch(block_buffer);
-		for (i = 0; i < (*block)->size(); i++)
-			parity_buffer[i] ^= block_buffer[i];
-	}
+    block = blocks_.begin();
+    for (; block != blocks_.end(); block++) {
+        (*block)->fetch(block_buffer);
+        for (i = 0; i < (*block)->size(); i++)
+            parity_buffer[i] ^= block_buffer[i];
+    }
 
-	parity = new Block();
-	parity->from_buffer(parity_buffer, block_size_);
+    parity = new Block();
+    parity->from_buffer(parity_buffer, block_size_);
 
-	delete[] block_buffer;
+    delete[] block_buffer;
 
-	return parity;
+    return parity;
 }

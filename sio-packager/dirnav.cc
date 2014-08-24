@@ -5,25 +5,13 @@
 #include "dirnav.h"
 #include "dir.h"
 
-void mv_package_root()
-{
-    chdir(DIR_PACKAGE);
-}
+void mv_package_root() { chdir(DIR_PACKAGE); }
 
-void mv_package_blocks()
-{
-    chdir(DIR_BLOCKS);
-}
+void mv_package_blocks() { chdir(DIR_BLOCKS); }
 
-void mv_package_receipts()
-{
-    chdir(DIR_RECEIPTS);
-}
+void mv_package_receipts() { chdir(DIR_RECEIPTS); }
 
-void mv_parent()
-{
-    chdir("..");
-}
+void mv_parent() { chdir(".."); }
 
 int open_block(const std::string &name)
 {
@@ -55,7 +43,8 @@ int open_create_block(const std::string &name)
     mv_parent();
 
     if (fd < 0)
-        die("open_create_block: cannot open requested block\n[%s]\n", name.c_str());
+        die("open_create_block: cannot open requested block\n[%s]\n",
+            name.c_str());
     return fd;
 }
 
@@ -69,7 +58,8 @@ int open_receipt(const std::string &name)
     mv_parent();
 
     if (fd < 0)
-        die("open_receipt: cannot open requested receipt \"%s\"\n", name.c_str());
+        die("open_receipt: cannot open requested receipt \"%s\"\n",
+            name.c_str());
 
     return fd;
 }

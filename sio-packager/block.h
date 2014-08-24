@@ -14,7 +14,7 @@ class Block
 
     void update_hash();
 
-public:
+  public:
     Block();
     ~Block();
 

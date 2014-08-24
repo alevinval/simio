@@ -72,15 +72,9 @@ void Block::update_hash()
     name_ = sha2hexf(sha2_);
 }
 
-unsigned int Block::size() const
-{
-    return size_;
-}
+unsigned int Block::size() const { return size_; }
 
-bool Block::corrupted() const
-{
-    return corrupted_;
-}
+bool Block::corrupted() const { return corrupted_; }
 
 bool Block::integral() const
 {
@@ -93,25 +87,13 @@ bool Block::integral() const
     return !memcmp(match_sha, sha2_, 32);
 }
 
-bool Block::last() const
-{
-    return last_;
-}
+bool Block::last() const { return last_; }
 
-const unsigned char *Block::sha2() const
-{
-    return sha2_;
-}
+const unsigned char *Block::sha2() const { return sha2_; }
 
-const std::string &Block::name() const
-{
-    return name_;
-}
+const std::string &Block::name() const { return name_; }
 
-unsigned char *Block::buffer() const
-{
-    return buffer_;
-}
+unsigned char *Block::buffer() const { return buffer_; }
 
 void Block::set_last(unsigned int size)
 {
@@ -119,7 +101,4 @@ void Block::set_last(unsigned int size)
     last_ = true;
 }
 
-void Block::set_corrupted()
-{
-    corrupted_ = true;
-}
+void Block::set_corrupted() { corrupted_ = true; }
