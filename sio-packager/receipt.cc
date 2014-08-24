@@ -128,7 +128,7 @@ void Receipt::pack_blocks()
         block->from_buffer(buffer, readed_bytes);
         block->store();
         blocks_->push_back(block);		
-		for (j = 0; j < block_size_; j++)
+		for (j = 0; j < readed_bytes; j++)
 			parity_buffer[j] = buffer[j] ^ parity_buffer[j];
     }
     last_block_size_ = block->size();
