@@ -155,7 +155,7 @@ Block *Receipt::build_global_parity()
 	block_vector::iterator block;
 	Block *parity;
 
-	block_buffer = new unsigned char[block_size_]();
+	block_buffer = new unsigned char[block_size_];
 	parity_buffer = new unsigned char[block_size_]();
 
 	/** Build Global Parity */

@@ -120,7 +120,7 @@ void Receipt::pack_blocks()
 
 	// Initialize things
 	global_parity = new Block();
-    buffer = new unsigned char[block_size_]();
+    buffer = new unsigned char[block_size_];
 	parity_buffer = new unsigned char[block_size_]();
 	
 	// Process the file and pack the blocks ( build the global parity 
