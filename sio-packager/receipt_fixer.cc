@@ -151,9 +151,6 @@ Block *Receipt::build_global_parity()
 	/** Build Global Parity */
 
 	block = blocks_->begin();
-	(*block)->fetch(block_buffer);
-	memcpy(parity_buffer, block_buffer, (*block)->size());
-	block++;
 	for (; block != blocks_->end(); block++) {
 		memset(block_buffer, 0, block_size_);
 		(*block)->fetch(block_buffer);
