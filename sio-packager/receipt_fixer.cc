@@ -31,8 +31,8 @@ void Receipt::prune_blocks_integrity(unsigned char *buffer, int from)
 {
     block_vector::iterator block;
 
-    block = blocks_->begin() + from;
-    for (; block != blocks_->end(); block++) {
+    block = blocks_.begin() + from;
+    for (; block != blocks_.end(); block++) {
         (*block)->fetch(buffer);
         if (!(*block)->integral()) {
             (*block)->set_corrupted();
@@ -48,8 +48,8 @@ void Receipt::prune_parities_integrity(unsigned char *buffer, int from)
 {
 	block_vector::iterator block;
 
-	block = parities_->begin() + from;
-	for (; block != parities_->end(); block++) {
+	block = parities_.begin() + from;
+	for (; block != parities_.end(); block++) {
 		(*block)->fetch(buffer);
 		if (!(*block)->integral()) {
 			(*block)->set_corrupted();
@@ -68,10 +68,10 @@ bool Receipt::fix_integrity()
         printf("fixing corrupted block\n");
         Block *block = corrupted_blocks_.at(0);
         if (block->last()) {
-            fix_one_corrupted_block(sane_blocks_, *block, *parities_->at(0),
+            fix_one_corrupted_block(sane_blocks_, *block, *parities_.at(0),
                                     last_block_size_);
         } else {
-            fix_one_corrupted_block(sane_blocks_, *block, *parities_->at(0),
+            fix_one_corrupted_block(sane_blocks_, *block, *parities_.at(0),
                                     block_size_);
         }
     } else {
@@ -160,12 +160,11 @@ Block *Receipt::build_global_parity()
 
 	/** Build Global Parity */
 
-	block = blocks_->begin();
-	for (; block != blocks_->end(); block++) {
-		memset(block_buffer, 0, block_size_);
+	block = blocks_.begin();
+	for (; block != blocks_.end(); block++) {		
 		(*block)->fetch(block_buffer);
-		for (i = 0; i < block_size_; i++)
-			parity_buffer[i] = block_buffer[i] ^ parity_buffer[i];
+		for (i = 0; i < (*block)->size(); i++)
+			parity_buffer[i] ^= block_buffer[i];
 	}
 
 	parity = new Block();

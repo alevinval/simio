@@ -16,9 +16,8 @@ class Receipt
     unsigned int block_size_;
     unsigned int parities_num_;
     unsigned int last_block_size_;
-    block_vector *blocks_;
-    block_vector *parities_;
-
+    block_vector blocks_;
+    block_vector parities_;
 	block_vector sane_blocks_;
 	block_vector corrupted_blocks_;	
 	block_vector corrupted_parities_;
