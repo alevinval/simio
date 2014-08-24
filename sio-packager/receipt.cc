@@ -61,13 +61,15 @@ void Receipt::unpack(bool skip_integrity)
         return;
     }
 
-    if (!check_integrity()) {
-        if (fix_integrity()) {
-            recover_original_file();
-        }
-    } else {
-        recover_original_file();
-    }
+	try {
+		recover_original_file_with_check();
+	}
+	catch (int offset) {		
+		check_integrity(offset);
+		if (fix_integrity()) {
+			recover_original_file();
+		}
+	}
 }
 
 void Receipt::set_receipt_data(const std::string &file_path, int block_size)
@@ -106,8 +108,8 @@ void Receipt::set_hash()
 
 void Receipt::pack_blocks()
 {
-    unsigned int i, j;
-    int fd, readed_bytes;
+	unsigned int i;	
+    int j, fd, readed_bytes;
     unsigned char *buffer;
 	unsigned char *parity_buffer;
     Block *block;
@@ -129,7 +131,7 @@ void Receipt::pack_blocks()
         block->store();
         blocks_->push_back(block);		
 		for (j = 0; j < readed_bytes; j++)
-			parity_buffer[j] = buffer[j] ^ parity_buffer[j];
+			parity_buffer[j] ^= buffer[j];
     }
     last_block_size_ = block->size();
     block->set_last(last_block_size_);
@@ -236,4 +238,41 @@ void Receipt::recover_original_file()
     rename_file(tmp_name, name_);
 
     delete[] block_buffer;
+}
+
+void Receipt::recover_original_file_with_check()
+{
+	int fd, i;
+
+	std::string tmp_name;
+	unsigned char *block_buffer;
+	block_vector::iterator block;
+
+	tmp_name = name_.c_str();
+	tmp_name.append(".tmp");
+
+	fd = open_create_file(tmp_name);
+	block_buffer = new unsigned char[block_size_];
+
+	i = 0;
+	block = blocks_->begin();
+	for (; block != blocks_->end(); block++) {
+		(*block)->fetch(block_buffer);
+		if (!(*block)->integral()) {
+			(*block)->set_corrupted();
+			close(fd);
+			delete_file(tmp_name);
+			delete[] block_buffer;
+			throw i;
+		}
+		write(fd, block_buffer, (*block)->size());
+		i++;
+	}
+
+	close(fd);
+
+	delete_file(name_);
+	rename_file(tmp_name, name_);
+
+	delete[] block_buffer;
 }

@@ -2,7 +2,7 @@
 #include "util.h"
 #include "receipt.h"
 
-bool Receipt::check_integrity()
+bool Receipt::check_integrity(int from)
 {
     block_vector corrupted_blocks = block_vector();
     block_vector::iterator block;
@@ -11,8 +11,8 @@ bool Receipt::check_integrity()
 
     buffer = new unsigned char[block_size_];
 
-    prune_blocks_integrity(corrupted_blocks, *blocks_, buffer);
-    prune_blocks_integrity(corrupted_blocks, *parities_, buffer);
+    prune_blocks_integrity(corrupted_blocks, *blocks_, buffer, from);
+    prune_blocks_integrity(corrupted_blocks, *parities_, buffer, 0);
 
     if (corrupted_blocks.size() > (size_t)parities_num_)
         die("cannot recover %i corrupted blocks with %i parities\n",
@@ -29,11 +29,11 @@ bool Receipt::check_integrity()
 }
 
 void Receipt::prune_blocks_integrity(block_vector &store, block_vector &blocks,
-                                     unsigned char *buffer)
+                                     unsigned char *buffer, int from)
 {
     block_vector::iterator block;
 
-    block = blocks.begin();
+    block = blocks.begin() + from;
     for (; block != blocks.end(); block++) {
         (*block)->fetch(buffer);
         if (!(*block)->integral()) {
