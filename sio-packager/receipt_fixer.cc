@@ -105,7 +105,7 @@ Block *Receipt::recover_block_from_parity(block_vector &blocks, Block &parity,
         memset(block_buffer, 0, parity.size());
         (*block)->fetch(block_buffer);
         for (i = 0; i < parity.size(); i++) {
-            missing_buffer[i] = block_buffer[i] ^ missing_buffer[i];
+            missing_buffer[i] ^= block_buffer[i];
         }
     }
 

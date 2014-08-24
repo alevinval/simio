@@ -4,7 +4,7 @@
 #include "receipt.h"
 #include "util.h"
 
-#define BLOCK_4MB 4000000
+#define BLOCK_4MB 4096000
 
 void pack(std::string file_path, int block_size)
 {
