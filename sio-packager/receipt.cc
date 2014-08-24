@@ -12,6 +12,10 @@ Receipt::Receipt()
 {
     blocks_ = new block_vector();
     parities_ = new block_vector();
+
+	sane_blocks_ = block_vector();
+	corrupted_blocks_ =  block_vector();
+	corrupted_parities_ = block_vector();
 }
 
 Receipt::~Receipt()
@@ -265,6 +269,7 @@ void Receipt::recover_original_file_with_check()
 			delete[] block_buffer;
 			throw i;
 		}
+		sane_blocks_.push_back(*block);
 		write(fd, block_buffer, (*block)->size());
 		i++;
 	}

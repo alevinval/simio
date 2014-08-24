@@ -3,22 +3,21 @@
 #include "receipt.h"
 
 bool Receipt::check_integrity(int from)
-{
-    block_vector corrupted_blocks = block_vector();
+{    
     block_vector::iterator block;
     unsigned char *buffer;
     bool ret;
 
     buffer = new unsigned char[block_size_];
 
-    prune_blocks_integrity(corrupted_blocks, *blocks_, buffer, from);
-    prune_blocks_integrity(corrupted_blocks, *parities_, buffer, 0);
+    prune_blocks_integrity(buffer, from);
+    prune_parities_integrity(buffer, 0);
 
-    if (corrupted_blocks.size() > (size_t)parities_num_)
+    if (corrupted_blocks_.size() > (size_t)parities_num_)
         die("cannot recover %i corrupted blocks with %i parities\n",
-            corrupted_blocks.size(), parities_num_);
+            corrupted_blocks_.size(), parities_num_);
 
-    if (corrupted_blocks.size() > 0)
+    if (corrupted_blocks_.size() > 0)
         ret = false;
     else
         ret = true;
@@ -28,40 +27,51 @@ bool Receipt::check_integrity(int from)
     return ret;
 }
 
-void Receipt::prune_blocks_integrity(block_vector &store, block_vector &blocks,
-                                     unsigned char *buffer, int from)
+void Receipt::prune_blocks_integrity(unsigned char *buffer, int from)
 {
     block_vector::iterator block;
 
-    block = blocks.begin() + from;
-    for (; block != blocks.end(); block++) {
+    block = blocks_->begin() + from;
+    for (; block != blocks_->end(); block++) {
         (*block)->fetch(buffer);
         if (!(*block)->integral()) {
             (*block)->set_corrupted();
-            store.push_back((*block));
-        }
+            corrupted_blocks_.push_back((*block));
+		}
+		else {
+			sane_blocks_.push_back((*block));
+		}
     }
+}
+
+void Receipt::prune_parities_integrity(unsigned char *buffer, int from)
+{
+	block_vector::iterator block;
+
+	block = parities_->begin() + from;
+	for (; block != parities_->end(); block++) {
+		(*block)->fetch(buffer);
+		if (!(*block)->integral()) {
+			(*block)->set_corrupted();
+			corrupted_parities_.push_back((*block));
+		}
+	}
 }
 
 bool Receipt::fix_integrity()
 {
-    block_vector sane_blocks = get_blocks_where_corruption(blocks_, false);
-    block_vector corrupted_blocks = get_blocks_where_corruption(blocks_, true);
-    block_vector corrupted_parities =
-        get_blocks_where_corruption(parities_, true);
-
-    if (corrupted_parities.size() == 1) {
+    if (corrupted_parities_.size() == 1) {
         printf("fixing global parity\n");
         Block *parity = build_global_parity();
         parity->store();
-    } else if (corrupted_blocks.size() == 1) {
+    } else if (corrupted_blocks_.size() == 1) {
         printf("fixing corrupted block\n");
-        Block *block = corrupted_blocks.at(0);
+        Block *block = corrupted_blocks_.at(0);
         if (block->last()) {
-            fix_one_corrupted_block(sane_blocks, *block, *parities_->at(0),
+            fix_one_corrupted_block(sane_blocks_, *block, *parities_->at(0),
                                     last_block_size_);
         } else {
-            fix_one_corrupted_block(sane_blocks, *block, *parities_->at(0),
+            fix_one_corrupted_block(sane_blocks_, *block, *parities_->at(0),
                                     block_size_);
         }
     } else {

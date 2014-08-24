@@ -19,6 +19,10 @@ class Receipt
     block_vector *blocks_;
     block_vector *parities_;
 
+	block_vector sane_blocks_;
+	block_vector corrupted_blocks_;	
+	block_vector corrupted_parities_;
+
     void set_receipt_data(const std::string &file_path, int block_size);
     void fetch_receipt_data(int fd);
     void set_hash();
@@ -33,11 +37,12 @@ class Receipt
     // or whatever    
     bool check_integrity(int from);
     bool fix_integrity();
-    Block *build_global_parity();
+	void prune_blocks_integrity(unsigned char *buffer, int from);
+	void prune_parities_integrity(unsigned char *buffer, int from);
+
+	Block *build_global_parity();
     block_vector get_blocks_where_corruption(block_vector *blocks,
-            bool condition);
-    void prune_blocks_integrity(block_vector &store, block_vector &blocks,
-                                unsigned char *buffer, int from);
+            bool condition);    
     Block *recover_block_from_parity(block_vector &blocks, Block &parity,
                                      int block_size);
     void fix_one_corrupted_block(block_vector &sane_blocks, Block &block,
