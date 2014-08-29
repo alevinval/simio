@@ -5,11 +5,13 @@
 #include "block.h"
 #include "dir.h"
 #include "dirnav.h"
+#include "environment.h"
 
 typedef std::vector<Block *> block_vector;
 
 class Receipt
 {
+    Environment env_;
     std::string name_;
     unsigned char sha2_[32];
     unsigned int size_;
@@ -49,7 +51,7 @@ class Receipt
     // End
 
   public:
-    Receipt();
+    Receipt(Environment &env);
     ~Receipt();
 
     const block_vector *blocks() const;

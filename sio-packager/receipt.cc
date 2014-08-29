@@ -7,9 +7,10 @@
 #include "dirnav.h"
 #include "util.h"
 
-Receipt::Receipt()
+Receipt::Receipt(Environment &env)
     : sha2_(), size_(0), block_size_(0), parities_num_(0), last_block_size_(0)
 {
+    env_ = env;
     blocks_ = block_vector();
     parities_ = block_vector();
     sane_blocks_ = block_vector();

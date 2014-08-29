@@ -3,19 +3,23 @@
 #include "package.h"
 #include "receipt.h"
 #include "util.h"
+#include "environment.h"
 
-#define BLOCK_4MB 4096000
+#define BLOCK_4MB 16
 
 void pack(std::string file_path, int block_size)
 {
-    Receipt receipt = Receipt();
+    Environment env = Environment();
+    Receipt receipt = Receipt(env);
     receipt.create(file_path, block_size);
     receipt.pack();
 }
 
 void unpack(bool skip_integrity)
 {
-    Receipt receipt = Receipt();
+
+    Environment env = Environment();
+    Receipt receipt = Receipt(env);
     receipt.open(".receipt");
     receipt.unpack(skip_integrity);
 }
