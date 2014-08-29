@@ -32,6 +32,7 @@ class Receipt
     void pack_blocks();
     void fetch_blocks_data(int fd);
 
+    int first_missing_block_offset();
     void recover_original_file();
     void recover_original_file_with_check();
     // All this methods should be moved in a separate class, namely, receipt

@@ -63,14 +63,38 @@ void Receipt::unpack(bool skip_integrity)
         return;
     }
 
-    try {
-        recover_original_file_with_check();
-    } catch (int offset) {
-        check_integrity(offset);
-        if (fix_integrity()) {
-            recover_original_file();
+    int missing_block_offset = first_missing_block_offset ();
+
+    if (missing_block_offset > 0) {
+        check_integrity (missing_block_offset-1);
+        if (fix_integrity ()) {
+            recover_original_file ();
+        }
+    } else {
+        try {
+            recover_original_file_with_check();
+        } catch (int offset) {
+            check_integrity (offset);
+            if (fix_integrity ()) {
+                recover_original_file ();
+            }
         }
     }
+}
+
+int Receipt::first_missing_block_offset() {
+    block_vector::iterator block;
+    int offset = 0;
+
+    for(block = blocks_.begin(); block != blocks_.end(); block++)
+    {
+        offset ++;
+        if (!env_.block_cache ().search ( (*block)->name() )) {
+            return offset;
+        }
+    }
+
+    return 0;
 }
 
 void Receipt::set_receipt_data(const std::string &file_path, int block_size)

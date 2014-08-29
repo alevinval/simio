@@ -33,6 +33,11 @@ void Receipt::prune_blocks_integrity(unsigned char *buffer, int from)
 
     block = blocks_.begin() + from;
     for (; block != blocks_.end(); block++) {
+        if (!env_.block_cache ().search ( (*block)->name() )) {
+            (*block)->set_corrupted ();
+            corrupted_blocks_.push_back((*block));
+            continue;
+        }
         (*block)->fetch(buffer);
         if (!(*block)->integral()) {
             (*block)->set_corrupted();
@@ -49,6 +54,11 @@ void Receipt::prune_parities_integrity(unsigned char *buffer, int from)
 
     block = parities_.begin() + from;
     for (; block != parities_.end(); block++) {
+        if (!env_.block_cache ().search ( (*block)->name() )) {
+            (*block)->set_corrupted ();
+            corrupted_parities_.push_back((*block));
+            continue;
+        }
         (*block)->fetch(buffer);
         if (!(*block)->integral()) {
             (*block)->set_corrupted();
@@ -172,3 +182,4 @@ Block *Receipt::build_global_parity()
 
     return parity;
 }
+
