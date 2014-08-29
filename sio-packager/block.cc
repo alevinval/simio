@@ -49,6 +49,7 @@ void Block::fetch(unsigned char *buffer)
     block_size = file_size(fd);
     if (size_ != block_size) {
         corrupted_ = true;
+        return;
     }
     read(fd, buffer, block_size);
     close(fd);
