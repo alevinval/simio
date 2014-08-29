@@ -30,7 +30,7 @@ int Package::create()
 void Package::initialize()
 {
     printf("Initialising empty .package/\n");
-    chdir(DIR_PACKAGE);
+    mv_package_root ();
 #ifdef _WIN32
     mkdir(DIR_BLOCKS);
     mkdir(DIR_RECEIPTS);
@@ -40,6 +40,7 @@ void Package::initialize()
     mkdir(DIR_RECEIPTS, DIR_PERM);
     mkdir(DIR_SYNC, DIR_PERM);
 #endif
+    mv_parent ();
 }
 
 void Package::prepare()
@@ -47,5 +48,5 @@ void Package::prepare()
     if (!create()) {
         initialize();
     }
-    mv_package_root();
+    mv_package_root ();
 }
