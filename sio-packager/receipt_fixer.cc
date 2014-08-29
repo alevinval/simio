@@ -10,7 +10,9 @@ bool Receipt::check_integrity(int from)
 
     buffer = new unsigned char[block_size_];
 
-    prune_blocks_integrity(buffer, from);
+    if (from < blocks_.size())
+        prune_blocks_integrity(buffer, from);
+
     prune_parities_integrity(buffer, 0);
 
     if (corrupted_blocks_.size() > (size_t)parities_num_)
