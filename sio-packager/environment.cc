@@ -1,4 +1,9 @@
+#ifdef _WIN32
+#include "../compat/win32/dirent.h"
+#else
 #include <dirent.h>
+#endif
+
 #include "environment.h"
 #include "dirnav.h"
 
